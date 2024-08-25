@@ -1,17 +1,16 @@
 package main
 
 import (
-	"net/http"
+	"log"
 
-	"github.com/gin-gonic/gin"
+	"github.com/TheAmirhosssein/room-reservation-api/config"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/app"
 )
 
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run()
+	conf, err := config.NewConfig()
+	if err != nil {
+		log.Fatalf("Config error: %s", err)
+	}
+	app.Run(conf)
 }
