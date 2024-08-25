@@ -1,8 +1,4 @@
-up-windows: docker-up-window
-up-linux: docker-up-linux
+up: up
 
-docker-up-window:
+up:
 	@ docker compose up --build
-
-docker-up-linux:
-	@ sudo docker compose up --build
