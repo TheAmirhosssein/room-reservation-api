@@ -15,7 +15,7 @@ type (
 	APP struct {
 		Name      string `env-required:"true" yaml:"name"`
 		Version   string `env-required:"true" yaml:"version"`
-		SecretKey string `env:"SECRET_KEY,required"`
+		SecretKey string `env:"SECRET_KEY"`
 	}
 	HTTP struct {
 		Port string `env-required:"true" yaml:"port"`
