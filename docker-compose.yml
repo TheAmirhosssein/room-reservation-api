@@ -9,3 +9,14 @@ services:
       - ./:/app
     command: >
       sh -c "air -c .air.toml"
+    depends_on:
+      - db
+  db:
+    image: postgres
+    volumes:
+      - data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+
+volumes:
+  data:

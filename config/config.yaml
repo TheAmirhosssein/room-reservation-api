@@ -8,3 +8,6 @@ http:
 
 logger:
   log_level: 'debug'
+
+db:
+  pool_max: 2

@@ -9,6 +9,14 @@ import (
 )
 
 func Run(conf *config.Config) {
+	db, err := GetDB(conf.DB.Host, conf.DB.Username, conf.DB.Username, conf.DB.DB)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = Migrate(db)
+	if err != nil {
+		panic(err.Error())
+	}
 	handler := gin.Default()
 	handler.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
