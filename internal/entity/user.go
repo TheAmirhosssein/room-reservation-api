@@ -7,3 +7,7 @@ type User struct {
 	FullName     string
 	MobileNumber string `gorm:"unique"`
 }
+
+func (user User) Table() string {
+	return "users"
+}
