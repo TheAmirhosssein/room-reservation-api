@@ -14,3 +14,7 @@ func NewUsersRepository(db *gorm.DB) UserRepository {
 		BaseRepository: NewCommonBehavior[entity.User](db),
 	}
 }
+
+func (userRepo usersRepository) ByMobileNumber(value string, user *entity.User) {
+	userRepo.BaseRepository.GetDB().First(&user, "mobile_number = ?", value)
+}
