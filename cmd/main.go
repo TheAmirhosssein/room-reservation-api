@@ -4,7 +4,8 @@ import (
 	"log"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/app"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/app/database"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/app/server"
 )
 
 func main() {
@@ -12,5 +13,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config error: %s", err)
 	}
-	app.Run(conf)
+	database.StartDB(conf)
+	server.Run(conf)
 }
