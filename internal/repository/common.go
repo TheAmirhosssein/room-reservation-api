@@ -15,6 +15,10 @@ func NewCommonBehavior[T entity.DBTable](db *gorm.DB) BaseRepository[T] {
 	}
 }
 
+func (c *commonBehavior[T]) GetDB() *gorm.DB {
+	return c.db
+}
+
 func (c *commonBehavior[T]) Save(model *T) error {
 	return c.db.Save(model).Error
 }
