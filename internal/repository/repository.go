@@ -13,4 +13,5 @@ type BaseRepository[T entity.DBTable] interface {
 type UserRepository interface {
 	BaseRepository[entity.User]
 	ByMobileNumber(string, *entity.User)
+	GetUserOrCreate(string, *entity.User)
 }

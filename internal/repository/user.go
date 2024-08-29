@@ -18,3 +18,10 @@ func NewUsersRepository(db *gorm.DB) UserRepository {
 func (userRepo usersRepository) ByMobileNumber(value string, user *entity.User) {
 	userRepo.BaseRepository.GetDB().First(&user, "mobile_number = ?", value)
 }
+
+func (userRepo usersRepository) GetUserOrCreate(mobile_number string, user *entity.User) {
+	userRepo.ByMobileNumber(user.MobileNumber, user)
+	if user.ID == 0 {
+		userRepo.Save(user)
+	}
+}

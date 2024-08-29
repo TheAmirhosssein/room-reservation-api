@@ -17,9 +17,6 @@ func Authenticate(context *gin.Context) {
 		return
 	}
 	userRepo := repository.NewUsersRepository(database.DB)
-	userRepo.ByMobileNumber(user.MobileNumber, &user)
-	if user.ID == 0 {
-		userRepo.Save(&user)
-	}
+	userRepo.GetUserOrCreate(user.MobileNumber, &user)
 	context.JSONP(http.StatusOK, user)
 }
