@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/app/database"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/app/server"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/server"
 )
 
 func main() {

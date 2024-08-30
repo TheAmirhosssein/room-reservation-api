@@ -3,8 +3,8 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/TheAmirhosssein/room-reservation-api/internal/app/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/gin-gonic/gin"
 )
