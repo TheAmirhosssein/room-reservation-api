@@ -6,6 +6,7 @@ import (
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
+	"github.com/TheAmirhosssein/room-reservation-api/pkg/validators"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +15,10 @@ func Authenticate(context *gin.Context) {
 	err := context.BindJSON(&user)
 	if err != nil {
 		context.JSONP(http.StatusBadRequest, err.Error())
+		return
+	}
+	if !validators.ValidateMobileNumber(user.MobileNumber) {
+		context.JSONP(http.StatusBadRequest, gin.H{"message": "mobile number format is not valid"})
 		return
 	}
 	userRepo := repository.NewUsersRepository(database.DB)
