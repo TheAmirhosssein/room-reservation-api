@@ -18,5 +18,7 @@ func Authenticate(context *gin.Context) {
 	}
 	userRepo := repository.NewUsersRepository(database.DB)
 	userRepo.GetUserOrCreate(user.MobileNumber, &user)
-	context.JSONP(http.StatusOK, user)
+	// todo: add otp code
+	response := gin.H{"message": "otp code sent", "mobile_number": user.MobileNumber}
+	context.JSONP(http.StatusOK, response)
 }
