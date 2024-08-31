@@ -15,3 +15,9 @@ type UserRepository interface {
 	ByMobileNumber(string, *entity.User)
 	GetUserOrCreate(string, *entity.User)
 }
+
+type OTPCodeRepository interface {
+	Save(*entity.OTPCode)
+	GetCode(string) string
+	GenerateCode(*entity.OTPCode) error
+}
