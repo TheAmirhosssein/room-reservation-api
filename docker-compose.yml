@@ -17,6 +17,8 @@ services:
       - data:/var/lib/postgresql/data/
     env_file:
       - .env
+  redis:
+    image: redis
 
 volumes:
   data:

@@ -12,6 +12,7 @@ type (
 		APP  `yaml:"app"`
 		HTTP `yaml:"http"`
 		DB   `yaml:"db"`
+		Redis
 	}
 	APP struct {
 		Name      string `env-required:"true" yaml:"name"`
@@ -28,6 +29,10 @@ type (
 		Username string `env-required:"true" env:"POSTGRES_USER"`
 		Password string `env-required:"true" env:"POSTGRES_PASSWORD"`
 		DB       string `env-required:"true" env:"POSTGRES_DB"`
+	}
+
+	Redis struct {
+		Url string `env-required:"true" env:"REDIS_URL"`
 	}
 )
 
