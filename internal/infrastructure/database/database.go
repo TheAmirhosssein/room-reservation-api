@@ -35,3 +35,7 @@ func StartDB(conf *config.Config) {
 		panic(err.Error())
 	}
 }
+
+func GetDb() *gorm.DB {
+	return DB
+}

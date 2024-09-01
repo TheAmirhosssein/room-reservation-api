@@ -8,6 +8,10 @@ type User struct {
 	MobileNumber string `json:"mobile_number" binding:"required" gorm:"unique"`
 }
 
+func NewUser(fullName, mobileNumber string) *User {
+	return &User{FullName: fullName, MobileNumber: mobileNumber}
+}
+
 func (user User) Table() string {
 	return "users"
 }
