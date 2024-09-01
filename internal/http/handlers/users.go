@@ -5,6 +5,7 @@ import (
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
 	"github.com/TheAmirhosssein/room-reservation-api/pkg/validators"
@@ -25,6 +26,13 @@ func Authenticate(context *gin.Context) {
 	userRepo := repository.NewUserRepository(database.GetDb())
 	userUseCase := usecase.NewUserUseCase(userRepo)
 	user = *userUseCase.GetUserOrCreate(user.MobileNumber)
+	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
+	otpUseCase := usecase.NewOTPCase(otpRepo)
+	err = otpUseCase.GenerateCode(user.MobileNumber)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 	response := gin.H{"message": "otp code sent", "mobile_number": user.MobileNumber}
 	context.JSON(http.StatusOK, response)
 }
