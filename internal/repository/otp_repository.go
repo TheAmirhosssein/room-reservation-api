@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
@@ -10,7 +9,7 @@ import (
 )
 
 type OTPCodeRepository interface {
-	Save(*entity.OTPCode)
+	Save(*entity.OTPCode) error
 	GetCode(string) string
 }
 
@@ -24,11 +23,9 @@ func NewOTPCodeRepository(client *redis.Client) OTPCodeRepository {
 	}
 }
 
-func (otpRepo otpCodeRepository) Save(otpCode *entity.OTPCode) {
+func (otpRepo otpCodeRepository) Save(otpCode *entity.OTPCode) error {
 	err := otpRepo.client.Set(context.TODO(), otpCode.MobileNumber, otpCode.Code, time.Minute).Err()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
 }
 
 func (otpRepo otpCodeRepository) GetCode(mobileNumber string) string {

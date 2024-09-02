@@ -20,6 +20,6 @@ func (otp OTPUseCase) GenerateCode(mobileNumber string) error {
 		return errors.New("please wait a minute to get new code")
 	}
 	otpCode := entity.NewOtpCode(mobileNumber)
-	otp.Repo.Save(&otpCode)
-	return nil
+	err := otp.Repo.Save(&otpCode)
+	return err
 }
