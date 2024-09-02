@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 )
@@ -18,7 +20,7 @@ func NewOTPCase(otpRepo repository.OTPCodeRepository) OTPUseCase {
 
 func (otp OTPUseCase) GenerateCode(ctx context.Context, mobileNumber string) error {
 	code, err := otp.Repo.GetCode(ctx, mobileNumber)
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		return err
 	}
 	if code != "" {
