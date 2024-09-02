@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
@@ -9,16 +10,24 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+var (
+	once sync.Once
+	DB   *gorm.DB
+)
 
 func initDB(host, user, password, name string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v", host, user, password, name)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-	DB = db
-	return db, nil
+	var db *gorm.DB
+	var err error
+	once.Do(func() {
+		dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v", host, user, password, name)
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			db = nil
+			return
+		}
+		DB = db
+	})
+	return db, err
 }
 
 func migrate(db *gorm.DB) error {
