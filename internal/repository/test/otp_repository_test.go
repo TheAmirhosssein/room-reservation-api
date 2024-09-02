@@ -1,4 +1,4 @@
-package main
+package repository_test
 
 import (
 	"testing"
@@ -51,5 +51,7 @@ func TestOTPCodeRepository_Get(t *testing.T) {
 
 	savedCode, err := mr.Get(otpCode.MobileNumber)
 	assert.NoError(t, err, "Save should not return an error")
-	assert.Equal(t, otpRepo.GetCode(mobileNumber), savedCode, "The saved code should match the input")
+	code, err := otpRepo.GetCode(mobileNumber)
+	assert.NoError(t, err, "Get Code should not return an error")
+	assert.Equal(t, code, savedCode, "The saved code should match the input")
 }

@@ -16,10 +16,14 @@ func NewOTPCase(otpRepo repository.OTPCodeRepository) OTPUseCase {
 }
 
 func (otp OTPUseCase) GenerateCode(mobileNumber string) error {
-	if otp.Repo.GetCode(mobileNumber) != "" {
+	code, err := otp.Repo.GetCode(mobileNumber)
+	if err != nil {
+		return err
+	}
+	if code != "" {
 		return errors.New("please wait a minute to get new code")
 	}
 	otpCode := entity.NewOtpCode(mobileNumber)
-	err := otp.Repo.Save(&otpCode)
+	err = otp.Repo.Save(&otpCode)
 	return err
 }

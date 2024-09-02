@@ -10,7 +10,7 @@ import (
 
 type OTPCodeRepository interface {
 	Save(*entity.OTPCode) error
-	GetCode(string) string
+	GetCode(string) (string, error)
 }
 
 type otpCodeRepository struct {
@@ -28,7 +28,7 @@ func (otpRepo otpCodeRepository) Save(otpCode *entity.OTPCode) error {
 	return err
 }
 
-func (otpRepo otpCodeRepository) GetCode(mobileNumber string) string {
+func (otpRepo otpCodeRepository) GetCode(mobileNumber string) (string, error) {
 	stringCmd := otpRepo.client.Get(context.TODO(), mobileNumber)
-	return stringCmd.Val()
+	return stringCmd.Result()
 }
