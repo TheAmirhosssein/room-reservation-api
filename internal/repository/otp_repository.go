@@ -9,8 +9,8 @@ import (
 )
 
 type OTPCodeRepository interface {
-	Save(*entity.OTPCode) error
-	GetCode(string) (string, error)
+	Save(context.Context, *entity.OTPCode) error
+	GetCode(context.Context, string) (string, error)
 }
 
 type otpCodeRepository struct {
@@ -23,12 +23,12 @@ func NewOTPCodeRepository(client *redis.Client) OTPCodeRepository {
 	}
 }
 
-func (otpRepo otpCodeRepository) Save(otpCode *entity.OTPCode) error {
-	err := otpRepo.client.Set(context.TODO(), otpCode.MobileNumber, otpCode.Code, time.Minute).Err()
+func (otpRepo otpCodeRepository) Save(ctx context.Context, otpCode *entity.OTPCode) error {
+	err := otpRepo.client.Set(ctx, otpCode.MobileNumber, otpCode.Code, time.Minute).Err()
 	return err
 }
 
-func (otpRepo otpCodeRepository) GetCode(mobileNumber string) (string, error) {
-	stringCmd := otpRepo.client.Get(context.TODO(), mobileNumber)
+func (otpRepo otpCodeRepository) GetCode(ctx context.Context, mobileNumber string) (string, error) {
+	stringCmd := otpRepo.client.Get(ctx, mobileNumber)
 	return stringCmd.Result()
 }

@@ -28,7 +28,7 @@ func Authenticate(context *gin.Context) {
 	user = *userUseCase.GetUserOrCreate(user.MobileNumber)
 	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
 	otpUseCase := usecase.NewOTPCase(otpRepo)
-	err = otpUseCase.GenerateCode(user.MobileNumber)
+	err = otpUseCase.GenerateCode(context, user.MobileNumber)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return

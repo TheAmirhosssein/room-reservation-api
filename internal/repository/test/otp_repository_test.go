@@ -1,7 +1,9 @@
 package repository_test
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
@@ -11,6 +13,9 @@ import (
 )
 
 func TestOTPCodeRepository_Save(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
 	mr, err := miniredis.Run()
 	if err != nil {
 		t.Fatalf("An error occurred while starting miniredis: %v", err)
@@ -24,7 +29,7 @@ func TestOTPCodeRepository_Save(t *testing.T) {
 
 	otpCode := entity.NewOtpCode(mobileNumber)
 
-	err = otpRepo.Save(&otpCode)
+	err = otpRepo.Save(ctx, &otpCode)
 	assert.NoError(t, err, "Save should not return an error")
 
 	savedCode, err := mr.Get(otpCode.MobileNumber)
@@ -33,6 +38,9 @@ func TestOTPCodeRepository_Save(t *testing.T) {
 }
 
 func TestOTPCodeRepository_Get(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
 	mr, err := miniredis.Run()
 	if err != nil {
 		t.Fatalf("An error occurred while starting miniredis: %v", err)
@@ -46,12 +54,12 @@ func TestOTPCodeRepository_Get(t *testing.T) {
 
 	otpCode := entity.NewOtpCode(mobileNumber)
 
-	err = otpRepo.Save(&otpCode)
+	err = otpRepo.Save(ctx, &otpCode)
 	assert.NoError(t, err, "Save should not return an error")
 
 	savedCode, err := mr.Get(otpCode.MobileNumber)
 	assert.NoError(t, err, "Save should not return an error")
-	code, err := otpRepo.GetCode(mobileNumber)
+	code, err := otpRepo.GetCode(ctx, mobileNumber)
 	assert.NoError(t, err, "Get Code should not return an error")
 	assert.Equal(t, code, savedCode, "The saved code should match the input")
 }

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
@@ -15,8 +16,8 @@ func NewOTPCase(otpRepo repository.OTPCodeRepository) OTPUseCase {
 	return OTPUseCase{Repo: otpRepo}
 }
 
-func (otp OTPUseCase) GenerateCode(mobileNumber string) error {
-	code, err := otp.Repo.GetCode(mobileNumber)
+func (otp OTPUseCase) GenerateCode(ctx context.Context, mobileNumber string) error {
+	code, err := otp.Repo.GetCode(ctx, mobileNumber)
 	if err != nil {
 		return err
 	}
@@ -24,6 +25,6 @@ func (otp OTPUseCase) GenerateCode(mobileNumber string) error {
 		return errors.New("please wait a minute to get new code")
 	}
 	otpCode := entity.NewOtpCode(mobileNumber)
-	err = otp.Repo.Save(&otpCode)
+	err = otp.Repo.Save(ctx, &otpCode)
 	return err
 }
