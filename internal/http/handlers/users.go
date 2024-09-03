@@ -25,14 +25,18 @@ func Authenticate(context *gin.Context) {
 	}
 	userRepo := repository.NewUserRepository(database.GetDb())
 	userUseCase := usecase.NewUserUseCase(userRepo)
-	user = *userUseCase.GetUserOrCreate(user.MobileNumber)
-	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
-	otpUseCase := usecase.NewOTPCase(otpRepo)
-	err = otpUseCase.GenerateCode(context, user.MobileNumber)
+	saveUser, err := userUseCase.GetUserOrCreate(user.MobileNumber)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	response := gin.H{"message": "otp code sent", "mobile_number": user.MobileNumber}
+	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
+	otpUseCase := usecase.NewOTPCase(otpRepo)
+	err = otpUseCase.GenerateCode(context, saveUser.MobileNumber)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	response := gin.H{"message": "otp code sent", "mobile_number": saveUser.MobileNumber}
 	context.JSON(http.StatusOK, response)
 }
