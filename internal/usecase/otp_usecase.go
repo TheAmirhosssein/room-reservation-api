@@ -18,15 +18,18 @@ func NewOTPCase(otpRepo repository.OTPCodeRepository) OTPUseCase {
 	return OTPUseCase{Repo: otpRepo}
 }
 
-func (otp OTPUseCase) GenerateCode(ctx context.Context, mobileNumber string) error {
+func (otp OTPUseCase) GenerateCode(ctx context.Context, mobileNumber string) (string, error) {
 	code, err := otp.Repo.GetCode(ctx, mobileNumber)
 	if err != nil && err != redis.Nil {
-		return err
+		return "", err
 	}
 	if code != "" {
-		return errors.New("please wait a minute to get new code")
+		return "", errors.New("please wait a minute to get new code")
 	}
 	otpCode := entity.NewOtpCode(mobileNumber)
 	err = otp.Repo.Save(ctx, &otpCode)
-	return err
+	if err != nil {
+		return "", err
+	}
+	return otpCode.Code, nil
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
@@ -32,11 +33,12 @@ func Authenticate(context *gin.Context) {
 	}
 	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
 	otpUseCase := usecase.NewOTPCase(otpRepo)
-	err = otpUseCase.GenerateCode(context, saveUser.MobileNumber)
+	code, err := otpUseCase.GenerateCode(context, saveUser.MobileNumber)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+	fmt.Printf("code was %v\n", code)
 	response := gin.H{"message": "otp code sent", "mobile_number": saveUser.MobileNumber}
 	context.JSON(http.StatusOK, response)
 }
