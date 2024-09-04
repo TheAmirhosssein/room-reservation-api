@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/pkg/validators"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateMobileNumber(t *testing.T) {
@@ -15,9 +16,7 @@ func TestValidateMobileNumber(t *testing.T) {
 	}
 
 	for _, num := range validNumbers {
-		if !validators.ValidateMobileNumber(num) {
-			t.Errorf("Expected valid mobile number, but got invalid for: %s", num)
-		}
+		assert.True(t, validators.ValidateMobileNumber(num), "Expected valid mobile number, but got invalid for: %s", num)
 	}
 
 	invalidNumbers := []string{
