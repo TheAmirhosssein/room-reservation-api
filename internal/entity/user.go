@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	FullName     string `json:"full_name"`
-	MobileNumber string `json:"mobile_number" binding:"required" gorm:"unique"`
+	FullName     string
+	MobileNumber string `gorm:"unique"`
 }
 
 func NewUser(fullName, mobileNumber string) *User {
