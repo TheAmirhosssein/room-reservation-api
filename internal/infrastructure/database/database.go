@@ -2,11 +2,14 @@ package database
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"sync"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -45,6 +48,20 @@ func StartDB(conf *config.Config) {
 	}
 }
 
+func TestDb() *gorm.DB {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
+	return db
+}
+
 func GetDb() *gorm.DB {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return TestDb()
+		}
+	}
 	return DB
 }
