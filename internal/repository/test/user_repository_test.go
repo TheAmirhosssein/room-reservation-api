@@ -4,20 +4,16 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 func TestUserRepository_Save(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	assert.NoErrorf(t, err, "can not open in memory db, error : %v", err)
-	err = db.AutoMigrate(&entity.User{})
-	assert.NoErrorf(t, err, "can not migrate in memory db, error: %v", err)
+	db := database.TestDb()
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err = repo.Save(user)
+	err := repo.Save(user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User
@@ -29,13 +25,10 @@ func TestUserRepository_Save(t *testing.T) {
 }
 
 func TestUserRepository_ByMobileNumber(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	assert.NoErrorf(t, err, "can not open in memory db, error : %v", err)
-	err = db.AutoMigrate(&entity.User{})
-	assert.NoErrorf(t, err, "can not migrate in memory db, error: %v", err)
+	db := database.TestDb()
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err = repo.Save(user)
+	err := repo.Save(user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User
