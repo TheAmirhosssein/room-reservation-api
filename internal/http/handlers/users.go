@@ -42,3 +42,20 @@ func Authenticate(context *gin.Context) {
 	response := gin.H{"message": "otp code sent", "mobile_number": user.MobileNumber}
 	context.JSON(http.StatusOK, response)
 }
+
+func Token(context *gin.Context) {
+	body := models.Token{}
+	err := context.BindJSON(&body)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	otpRepo := repository.NewOTPCodeRepository(redis.GetClient())
+	otpUseCase := usecase.NewOTPCase(otpRepo)
+	err = otpUseCase.ValidateCode(context, body.MobileNumber, body.Code)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	context.JSON(http.StatusBadRequest, gin.H{"message": "successful"})
+}

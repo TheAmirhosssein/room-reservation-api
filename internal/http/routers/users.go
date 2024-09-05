@@ -8,4 +8,5 @@ import (
 func UserRouters(server *gin.Engine, prefix string) {
 	userRouter := server.Group(prefix)
 	userRouter.POST("authenticate", handlers.Authenticate)
+	userRouter.POST("token", handlers.Token)
 }

@@ -11,6 +11,7 @@ import (
 type OTPCodeRepository interface {
 	Save(context.Context, *entity.OTPCode) error
 	GetCode(context.Context, string) (string, error)
+	DeleteCode(context.Context, string) error
 }
 
 type otpCodeRepository struct {
@@ -31,4 +32,9 @@ func (otpRepo otpCodeRepository) Save(ctx context.Context, otpCode *entity.OTPCo
 func (otpRepo otpCodeRepository) GetCode(ctx context.Context, mobileNumber string) (string, error) {
 	stringCmd := otpRepo.client.Get(ctx, mobileNumber)
 	return stringCmd.Result()
+}
+
+func (otpRepo otpCodeRepository) DeleteCode(ctx context.Context, mobileNumber string) error {
+	err := otpRepo.client.Del(ctx, mobileNumber)
+	return err.Err()
 }

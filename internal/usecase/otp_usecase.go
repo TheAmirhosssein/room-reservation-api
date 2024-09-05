@@ -33,3 +33,21 @@ func (otp OTPUseCase) GenerateCode(ctx context.Context, mobileNumber string) (st
 	}
 	return otpCode.Code, nil
 }
+
+func (otp OTPUseCase) ValidateCode(ctx context.Context, mobileNumber string, code string) error {
+	savedCode, err := otp.Repo.GetCode(ctx, mobileNumber)
+	if err != nil {
+		if err == redis.Nil {
+			return errors.New("this code is invalid, please get new one")
+		} else {
+			return err
+		}
+	}
+	if code != savedCode {
+		return errors.New("this code is incorrect")
+	}
+	if err = otp.Repo.DeleteCode(ctx, mobileNumber); err != nil {
+		return err
+	}
+	return nil
+}
