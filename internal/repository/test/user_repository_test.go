@@ -4,16 +4,21 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func TestUserRepository_Save(t *testing.T) {
-	db := database.TestDb()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err := repo.Save(user)
+	err = repo.Save(user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User
@@ -25,10 +30,14 @@ func TestUserRepository_Save(t *testing.T) {
 }
 
 func TestUserRepository_ByMobileNumber(t *testing.T) {
-	db := database.TestDb()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err := repo.Save(user)
+	err = repo.Save(user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User

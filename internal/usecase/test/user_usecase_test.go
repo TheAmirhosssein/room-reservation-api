@@ -4,14 +4,19 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func TestUserUseCase_GetUserOrCreate(t *testing.T) {
-	db := database.TestDb()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
 	repo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(repo)
 	mobileNumber := "090012305412"

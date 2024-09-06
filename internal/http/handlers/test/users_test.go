@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/handlers"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -43,4 +44,5 @@ func TestAuthenticateHandler(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	responseData, _ = io.ReadAll(w.Body)
 	assert.Equal(t, invalidTimeResponse, string(responseData))
+	redis.InitiateTestClient()
 }

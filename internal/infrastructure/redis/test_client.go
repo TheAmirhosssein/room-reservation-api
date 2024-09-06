@@ -7,7 +7,7 @@ import (
 
 var testClient *redis.Client
 
-func InitiateClient() {
+func InitiateTestClient() {
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
@@ -20,7 +20,7 @@ func InitiateClient() {
 
 func TestClient() *redis.Client {
 	if testClient == nil {
-		InitiateClient()
+		InitiateTestClient()
 	}
 	return testClient
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -31,15 +30,6 @@ func StartDB() {
 	if err != nil {
 		panic(err.Error())
 	}
-}
-
-func TestDb() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	db.AutoMigrate(&entity.User{})
-	return db
 }
 
 func GetDb() *gorm.DB {
