@@ -35,4 +35,12 @@ func TestAuthenticateHandler(t *testing.T) {
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
+
+	invalidTimeResponse := `{"message":"please wait a minute to get new code"}`
+	req, _ = http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	responseData, _ = io.ReadAll(w.Body)
+	assert.Equal(t, invalidTimeResponse, string(responseData))
 }

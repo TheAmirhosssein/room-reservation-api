@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
-	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -20,17 +19,6 @@ func Client() *redis.Client {
 	}
 
 	return redis.NewClient(opt)
-}
-
-func TestClient() *redis.Client {
-	mr, err := miniredis.Run()
-	if err != nil {
-		panic(err)
-	}
-	rdb := redis.NewClient(&redis.Options{
-		Addr: mr.Addr(),
-	})
-	return rdb
 }
 
 func GetClient() *redis.Client {
