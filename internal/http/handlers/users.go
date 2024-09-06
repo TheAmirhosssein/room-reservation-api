@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/models"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
+	"github.com/TheAmirhosssein/room-reservation-api/pkg/utils"
 	"github.com/TheAmirhosssein/room-reservation-api/pkg/validators"
 	"github.com/gin-gonic/gin"
 )
@@ -57,5 +59,14 @@ func Token(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	context.JSON(http.StatusBadRequest, gin.H{"message": "successful"})
+	userRepo := repository.NewUserRepository(database.GetDb())
+	userUseCase := usecase.NewUserUseCase(userRepo)
+	var user entity.User
+	userUseCase.Repo.ByMobileNumber(body.MobileNumber, &user)
+	accessToken, err := utils.GenerateAccessToken(int64(user.ID))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"token": accessToken})
 }
