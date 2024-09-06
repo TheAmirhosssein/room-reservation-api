@@ -5,7 +5,6 @@ import (
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/server"
 )
 
@@ -14,7 +13,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config error: %s", err)
 	}
-	redis.NewConnection(conf)
-	database.StartDB(conf)
+	database.StartDB()
 	server.Run(conf)
 }

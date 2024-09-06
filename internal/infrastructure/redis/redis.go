@@ -9,18 +9,20 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var client *redis.Client
-
-func NewConnection(conf *config.Config) {
+func Client() *redis.Client {
+	conf, err := config.NewConfig()
+	if err != nil {
+		panic(err.Error())
+	}
 	opt, err := redis.ParseURL(conf.Redis.Url)
 	if err != nil {
 		panic(err)
 	}
 
-	client = redis.NewClient(opt)
+	return redis.NewClient(opt)
 }
 
-func GetTestClient() *redis.Client {
+func TestClient() *redis.Client {
 	mr, err := miniredis.Run()
 	if err != nil {
 		panic(err)
@@ -34,8 +36,8 @@ func GetTestClient() *redis.Client {
 func GetClient() *redis.Client {
 	for _, arg := range os.Args {
 		if strings.HasPrefix(arg, "-test.") {
-			return GetTestClient()
+			return TestClient()
 		}
 	}
-	return client
+	return Client()
 }
