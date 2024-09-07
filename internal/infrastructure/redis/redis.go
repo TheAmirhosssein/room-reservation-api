@@ -1,9 +1,6 @@
 package redis
 
 import (
-	"os"
-	"strings"
-
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/redis/go-redis/v9"
 )
@@ -22,10 +19,8 @@ func Client() *redis.Client {
 }
 
 func GetClient() *redis.Client {
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "-test.") {
-			return TestClient()
-		}
+	if config.InTestMode() {
+		return TestClient()
 	}
 	return Client()
 }

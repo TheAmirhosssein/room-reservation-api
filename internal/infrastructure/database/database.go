@@ -2,8 +2,6 @@ package database
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
@@ -33,11 +31,10 @@ func StartDB() {
 }
 
 func GetDb() *gorm.DB {
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "-test.") {
-			return TestDb()
-		}
+	if config.InTestMode() {
+		return TestDb()
 	}
+
 	conf, err := config.NewConfig()
 	if err != nil {
 		panic(err.Error())

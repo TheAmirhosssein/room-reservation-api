@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -51,4 +53,13 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("env error: %w", err)
 	}
 	return conf, nil
+}
+
+func InTestMode() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test.") {
+			return true
+		}
+	}
+	return false
 }

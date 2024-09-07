@@ -14,6 +14,10 @@ func GenerateAccessToken(userId int64) (string, error) {
 		"exp":     time.Now().Add(time.Hour * (24 * 365)).Unix(),
 	})
 
+	if config.InTestMode() {
+		return token.SignedString([]byte("secretestkey"))
+	}
+
 	conf, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Config error: %s", err)
