@@ -23,7 +23,7 @@ func getSecretKey() (string, error) {
 
 func GenerateAccessToken(userId int64, mobileNumber string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id":      userId,
+		"userId":       userId,
 		"mobileNumber": mobileNumber,
 		"exp":          time.Now().Add(time.Hour * (24 * 365)).Unix(),
 	})
