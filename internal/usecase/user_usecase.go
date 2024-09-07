@@ -24,3 +24,9 @@ func (u UserUseCase) GetUserOrCreate(mobileNumber string) (*entity.User, error) 
 	}
 	return user, nil
 }
+
+func (u UserUseCase) DoesUserExist(mobileNumber string) bool {
+	user := entity.NewUser("", mobileNumber)
+	u.Repo.ByMobileNumber(mobileNumber, user)
+	return user.ID != 0
+}
