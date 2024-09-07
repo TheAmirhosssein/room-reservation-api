@@ -13,4 +13,4 @@ down:
 	@ docker compose down
 
 test:
-	@ go test ./...
+	@ find . -type d -name 'test*' -exec go test {}/... \;
