@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	Save(*entity.User) error
 	ByMobileNumber(string, *entity.User) *gorm.DB
+	ById(int64, *entity.User) *gorm.DB
 }
 
 type userRepository struct {
@@ -24,4 +25,8 @@ func (userRepo userRepository) Save(user *entity.User) error {
 
 func (userRepo userRepository) ByMobileNumber(value string, user *entity.User) *gorm.DB {
 	return userRepo.db.First(&user, "mobile_number = ?", value)
+}
+
+func (userRepo userRepository) ById(id uint, user *entity.User) *gorm.DB {
+	return userRepo.db.First(&user, "ID = ?", id)
 }

@@ -49,3 +49,20 @@ func TestUserRepository_ByMobileNumber(t *testing.T) {
 	repo.ByMobileNumber("wrong", &wrongUser)
 	assert.Zero(t, wrongUser.ID)
 }
+
+func TestUserRepository_ById(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
+	repo := repository.NewUserRepository(db)
+
+	user := entity.User{}
+	repo.ById(1, &user)
+	assert.Equal(t, uint(0), user.ID)
+
+	user = *entity.NewUser("something", "09001231021")
+	repo.Save(&user)
+	assert.Equal(t, uint(1), user.ID)
+}
