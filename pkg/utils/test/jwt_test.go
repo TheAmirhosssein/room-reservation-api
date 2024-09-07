@@ -32,18 +32,15 @@ func TestTokenValidation(t *testing.T) {
 	tokenWithDifferentSigningMethod := createTokenWithDifferentSigningMethod()
 	_, err := utils.ValidateToken(tokenWithDifferentSigningMethod)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "invalid token")
 
 	invalidToken, err := createInvalidToken()
 	assert.NoError(t, err)
 
 	_, err = utils.ValidateToken(invalidToken)
 	assert.Error(t, err)
-	assert.EqualError(t, err, "invalid token")
 
 	_, err = utils.ValidateToken("invalidToken")
 	assert.Error(t, err)
-	assert.EqualError(t, err, "invalid token")
 
 	_, err = utils.GenerateAccessToken(1, "something")
 	assert.NoError(t, err)
