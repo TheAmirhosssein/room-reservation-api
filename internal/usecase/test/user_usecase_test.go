@@ -87,7 +87,7 @@ func TestUserUseCase_Update(t *testing.T) {
 	assert.Error(t, err)
 	assert.EqualError(t, err, "mobile number can not be empty")
 
-	user = entity.NewUser("something", "09001234565")
+	user = entity.NewUser("", "09001234565")
 	err = useCase.Update(&user)
 	assert.Error(t, err)
 	assert.NotEqual(t, err.Error(), "mobile number can not be empty")

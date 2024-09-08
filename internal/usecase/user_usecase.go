@@ -43,9 +43,11 @@ func (u UserUseCase) Update(user *entity.User) error {
 	if user.MobileNumber == "" {
 		return errors.New("mobile number can not be empty")
 	}
-	err := u.Repo.ByMobileNumber(user.MobileNumber, user).Error
+	userToUpdate := new(entity.User)
+	err := u.Repo.ByMobileNumber(user.MobileNumber, userToUpdate).Error
 	if err != nil {
 		return err
 	}
+	user.ID = userToUpdate.ID
 	return u.Repo.Save(user)
 }
