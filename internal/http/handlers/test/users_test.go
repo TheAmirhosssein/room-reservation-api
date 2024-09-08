@@ -23,7 +23,7 @@ import (
 
 func createUserAndToken(userRepo repository.UserRepository) (entity.User, string) {
 	mobileNumber := "09001110011"
-	user := *entity.NewUser("something", mobileNumber)
+	user := entity.NewUser("something", mobileNumber)
 	userRepo.Save(&user)
 	token, err := utils.GenerateAccessToken(user.ID, mobileNumber)
 	if err != nil {

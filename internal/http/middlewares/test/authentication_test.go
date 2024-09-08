@@ -7,10 +7,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/middlewares"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
 	"github.com/TheAmirhosssein/room-reservation-api/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -23,7 +23,7 @@ func TestAuthentication(t *testing.T) {
 	server := gin.Default()
 	server.GET("/", middlewares.AuthenticateMiddleware, func(ctx *gin.Context) {
 		mobileNumber := ctx.GetString("mobileNumber")
-		userId := ctx.GetInt64("userId")
+		userId := ctx.GetUint("userId")
 		ctx.JSON(http.StatusOK, gin.H{"id": userId, "mobile_number": mobileNumber})
 	})
 
@@ -66,9 +66,9 @@ func TestAuthentication(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusUnauthorized)
 	assert.Equal(t, string(response), expectedResponse)
 
+	user := entity.NewUser("something", mobileNumber)
 	userRepo := repository.NewUserRepository(db)
-	userUseCase := usecase.NewUserUseCase(userRepo)
-	user, err := userUseCase.GetUserOrCreate(mobileNumber)
+	userRepo.Save(&user)
 	assert.NoError(t, err)
 
 	req, _ = http.NewRequest("GET", "/", nil)
@@ -78,5 +78,5 @@ func TestAuthentication(t *testing.T) {
 	response, _ = io.ReadAll(w.Body)
 	expectedResponse = fmt.Sprintf(`{"id":%v,"mobile_number":"%v"}`, user.ID, user.MobileNumber)
 	assert.Equal(t, w.Code, http.StatusOK)
-	assert.Equal(t, string(response), expectedResponse)
+	assert.Equal(t, expectedResponse, string(response))
 }

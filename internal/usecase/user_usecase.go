@@ -15,18 +15,18 @@ func NewUserUseCase(userRepo repository.UserRepository) UserUseCase {
 
 func (u UserUseCase) GetUserOrCreate(mobileNumber string) (*entity.User, error) {
 	user := entity.NewUser("", mobileNumber)
-	u.Repo.ByMobileNumber(mobileNumber, user)
+	u.Repo.ByMobileNumber(mobileNumber, &user)
 	if user.ID == 0 {
-		err := u.Repo.Save(user)
+		err := u.Repo.Save(&user)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (u UserUseCase) DoesUserExist(mobileNumber string) bool {
 	user := entity.NewUser("", mobileNumber)
-	u.Repo.ByMobileNumber(mobileNumber, user)
+	u.Repo.ByMobileNumber(mobileNumber, &user)
 	return user.ID != 0
 }

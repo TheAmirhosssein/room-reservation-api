@@ -18,7 +18,7 @@ func TestUserRepository_Save(t *testing.T) {
 	db.AutoMigrate(&entity.User{})
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err = repo.Save(user)
+	err = repo.Save(&user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User
@@ -37,7 +37,7 @@ func TestUserRepository_ByMobileNumber(t *testing.T) {
 	db.AutoMigrate(&entity.User{})
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
-	err = repo.Save(user)
+	err = repo.Save(&user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
 	var savedUser entity.User
@@ -62,7 +62,7 @@ func TestUserRepository_ById(t *testing.T) {
 	repo.ById(1, &user)
 	assert.Equal(t, uint(0), user.ID)
 
-	user = *entity.NewUser("something", "09001231021")
+	user = entity.NewUser("something", "09001231021")
 	repo.Save(&user)
 	assert.Equal(t, uint(1), user.ID)
 }

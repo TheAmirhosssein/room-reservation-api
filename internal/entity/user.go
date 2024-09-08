@@ -8,6 +8,6 @@ type User struct {
 	MobileNumber string `gorm:"unique"`
 }
 
-func NewUser(fullName, mobileNumber string) *User {
-	return &User{FullName: fullName, MobileNumber: mobileNumber}
+func NewUser(fullName, mobileNumber string) User {
+	return User{FullName: fullName, MobileNumber: mobileNumber}
 }
