@@ -84,3 +84,24 @@ func Me(context *gin.Context) {
 	userResponse := models.NewUserResponse(user)
 	context.JSON(http.StatusOK, userResponse)
 }
+
+func UpdateUser(context *gin.Context) {
+	body := new(models.UpdateUser)
+	err := context.BindJSON(body)
+	if err != nil {
+		context.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+	mobileNumber := context.GetString("mobileNumber")
+	updateUser := entity.NewUser(body.FullName, mobileNumber)
+	err = useCase.Update(&updateUser)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+		return
+	}
+	userResponse := models.NewUserResponse(updateUser)
+	context.JSON(http.StatusOK, userResponse)
+}

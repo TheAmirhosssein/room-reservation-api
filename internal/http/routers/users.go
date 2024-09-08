@@ -11,4 +11,5 @@ func UserRouters(server *gin.Engine, prefix string) {
 	userRouter.POST("authenticate", handlers.Authenticate)
 	userRouter.POST("token", handlers.Token)
 	userRouter.GET("me", middlewares.AuthenticateMiddleware, handlers.Me)
+	userRouter.PUT("me", middlewares.AuthenticateMiddleware, handlers.UpdateUser)
 }

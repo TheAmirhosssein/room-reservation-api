@@ -15,6 +15,10 @@ type (
 		MobileNumber string `json:"mobile_number" binding:"required"`
 		Code         string `json:"code" binding:"required"`
 	}
+
+	UpdateUser struct {
+		FullName string `json:"full_name" binding:"required"`
+	}
 )
 
 type UserResponse struct {

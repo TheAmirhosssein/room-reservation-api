@@ -132,3 +132,38 @@ func TestMeHandler(t *testing.T) {
 	assert.Equal(t, user.ID, uint(result["id"].(float64)))
 	assert.Equal(t, user.MobileNumber, result["mobile_number"])
 }
+
+func TestEditMeInfo(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	user, token := createUserAndToken(userRepo)
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	body, _ := json.Marshal(map[string]string{"full_name": "something else"})
+	req, _ := http.NewRequest("PUT", "/user/me", bytes.NewBuffer(body))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	wrongBody, _ := json.Marshal(map[string]string{"wrongOne": "something else"})
+	req, _ = http.NewRequest("PUT", "/user/me", bytes.NewBuffer(wrongBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	req, _ = http.NewRequest("PUT", "/user/me", bytes.NewBuffer(body))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	userAfterUpdate := new(entity.User)
+	userRepo.ById(user.ID, userAfterUpdate)
+	assert.Equal(t, userAfterUpdate.FullName, "something else")
+}
