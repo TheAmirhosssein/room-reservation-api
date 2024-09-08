@@ -72,3 +72,32 @@ func TestUserRepository_GetUserById(t *testing.T) {
 	_, err = userUseCase.GetUserById(1)
 	assert.NoError(t, err)
 }
+
+func TestUserUseCase_Update(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+
+	user := entity.NewUser("something", "")
+	err = useCase.Update(&user)
+	assert.Error(t, err)
+	assert.EqualError(t, err, "mobile number can not be empty")
+
+	user = entity.NewUser("something", "09001234565")
+	err = useCase.Update(&user)
+	assert.Error(t, err)
+	assert.NotEqual(t, err.Error(), "mobile number can not be empty")
+
+	err = repo.Save(&user)
+	updateUser := entity.NewUser("something else", "09001234565")
+	assert.NoError(t, err)
+	err = useCase.Update(&updateUser)
+	assert.NoError(t, err)
+	repo.ById(user.ID, &user)
+	assert.Equal(t, user.ID, updateUser.ID)
+	assert.Equal(t, user.FullName, updateUser.FullName)
+}

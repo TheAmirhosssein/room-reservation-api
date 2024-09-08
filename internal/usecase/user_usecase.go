@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 )
@@ -35,4 +37,15 @@ func (u UserUseCase) GetUserById(id uint) (entity.User, error) {
 	user := new(entity.User)
 	query := u.Repo.ById(id, user)
 	return *user, query.Error
+}
+
+func (u UserUseCase) Update(user *entity.User) error {
+	if user.MobileNumber == "" {
+		return errors.New("mobile number can not be empty")
+	}
+	err := u.Repo.ByMobileNumber(user.MobileNumber, user).Error
+	if err != nil {
+		return err
+	}
+	return u.Repo.Save(user)
 }
