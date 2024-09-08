@@ -4,18 +4,34 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/handlers"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/http/middlewares"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
+	"github.com/TheAmirhosssein/room-reservation-api/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
+
+func createUserAndToken(userRepo repository.UserRepository) (entity.User, string) {
+	mobileNumber := "09001110011"
+	user := *entity.NewUser("something", mobileNumber)
+	userRepo.Save(&user)
+	token, err := utils.GenerateAccessToken(user.ID, mobileNumber)
+	if err != nil {
+		panic(token)
+	}
+	return user, token
+}
 
 func TestAuthenticateHandler(t *testing.T) {
 	invalidMobileNumberResponse := `{"message":"mobile number format is not valid"}`
@@ -87,4 +103,33 @@ func TestTokenHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	redis.InitiateTestClient()
 	database.InitiateTestDB()
+}
+
+func TestMeHandler(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	user, token := createUserAndToken(userRepo)
+
+	r := gin.Default()
+	r.GET("/", middlewares.AuthenticateMiddleware, handlers.Me)
+
+	req, _ := http.NewRequest("GET", "/", nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	req, _ = http.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	response, _ := io.ReadAll(w.Body)
+	var result map[string]any
+	json.Unmarshal(response, &result)
+	fmt.Println(result)
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, user.ID, uint(result["id"].(float64)))
+	assert.Equal(t, user.MobileNumber, result["mobile_number"])
 }

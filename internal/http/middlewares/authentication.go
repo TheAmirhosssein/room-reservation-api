@@ -35,7 +35,7 @@ func AuthenticateMiddleware(context *gin.Context) {
 		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "invalid user"})
 		return
 	}
-	context.Set("userId", int64(claims["userId"].(float64)))
-	context.Set("mobileNumber", claims["mobileNumber"].(string))
+	context.Set("userId", uint(claims["userId"].(float64)))
+	context.Set("mobileNumber", mobileNumber)
 	context.Next()
 }

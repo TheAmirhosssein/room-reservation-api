@@ -21,7 +21,7 @@ func getSecretKey() (string, error) {
 	return conf.APP.SecretKey, nil
 }
 
-func GenerateAccessToken(userId int64, mobileNumber string) (string, error) {
+func GenerateAccessToken(userId uint, mobileNumber string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":       userId,
 		"mobileNumber": mobileNumber,
