@@ -12,8 +12,7 @@ import (
 	"time"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/http/handlers"
-	"github.com/TheAmirhosssein/room-reservation-api/internal/http/middlewares"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/http/routers"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/redis"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
@@ -37,11 +36,11 @@ func TestAuthenticateHandler(t *testing.T) {
 	invalidMobileNumberResponse := `{"message":"mobile number format is not valid"}`
 	invalidMobileNumber := "1234"
 	body, _ := json.Marshal(map[string]string{"mobile_number": invalidMobileNumber})
-	r := gin.Default()
-	r.POST("/", handlers.Authenticate)
-	req, _ := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+	req, _ := http.NewRequest("POST", "/user/authenticate", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 
 	responseData, _ := io.ReadAll(w.Body)
 	assert.Equal(t, invalidMobileNumberResponse, string(responseData))
@@ -51,15 +50,15 @@ func TestAuthenticateHandler(t *testing.T) {
 	body, _ = json.Marshal(map[string]string{"mobile_number": validNumber})
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
-	req, _ = http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	req, _ = http.NewRequest("POST", "/user/authenticate", bytes.NewBuffer(body))
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	invalidTimeResponse := `{"message":"please wait a minute to get new code"}`
-	req, _ = http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	req, _ = http.NewRequest("POST", "/user/authenticate", bytes.NewBuffer(body))
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	responseData, _ = io.ReadAll(w.Body)
 	assert.Equal(t, invalidTimeResponse, string(responseData))
@@ -70,15 +69,15 @@ func TestTokenHandler(t *testing.T) {
 	redis.InitiateTestClient()
 	database.InitiateTestDB()
 
-	r := gin.Default()
-	r.POST("/", handlers.Token)
+	server := gin.Default()
+	routers.UserRouters(server, "user")
 	mobileNumber := "09001234141"
 	code := "123456"
 	body, _ := json.Marshal(map[string]string{"mobile_number": mobileNumber, "code": "wrongCode"})
 
-	req, _ := http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/user/token", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	invalidTimeResponse := `{"message":"this code is invalid, please get new one"}`
 	responseData, _ := io.ReadAll(w.Body)
 	assert.Equal(t, invalidTimeResponse, string(responseData))
@@ -88,18 +87,18 @@ func TestTokenHandler(t *testing.T) {
 	client.Set(context.TODO(), mobileNumber, code, time.Hour)
 
 	invalidTimeResponse = `{"message":"this code is incorrect"}`
-	req, _ = http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	req, _ = http.NewRequest("POST", "/user/token", bytes.NewBuffer(body))
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	responseData, _ = io.ReadAll(w.Body)
 	assert.Equal(t, invalidTimeResponse, string(responseData))
 
 	body, _ = json.Marshal(map[string]string{"mobile_number": mobileNumber, "code": code})
 	invalidTimeResponse = `{"message":"this code is incorrect"}`
-	req, _ = http.NewRequest("POST", "/", bytes.NewBuffer(body))
+	req, _ = http.NewRequest("POST", "/user/token", bytes.NewBuffer(body))
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	redis.InitiateTestClient()
 	database.InitiateTestDB()
@@ -113,18 +112,18 @@ func TestMeHandler(t *testing.T) {
 	userRepo := repository.NewUserRepository(db)
 	user, token := createUserAndToken(userRepo)
 
-	r := gin.Default()
-	r.GET("/", middlewares.AuthenticateMiddleware, handlers.Me)
+	server := gin.Default()
+	routers.UserRouters(server, "user")
 
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest("GET", "/user/me", nil)
 	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 
-	req, _ = http.NewRequest("GET", "/", nil)
+	req, _ = http.NewRequest("GET", "/user/me", nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
 	w = httptest.NewRecorder()
-	r.ServeHTTP(w, req)
+	server.ServeHTTP(w, req)
 	response, _ := io.ReadAll(w.Body)
 	var result map[string]any
 	json.Unmarshal(response, &result)
