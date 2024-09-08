@@ -76,8 +76,11 @@ func Me(context *gin.Context) {
 	userRepo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(userRepo)
 	userId := context.GetUint("userId")
-	user := entity.User{}
-	userUseCase.Repo.ById(userId, &user)
+	user, err := userUseCase.GetUserById(userId)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
+		return
+	}
 	userResponse := models.NewUserResponse(user)
 	context.JSON(http.StatusOK, userResponse)
 }

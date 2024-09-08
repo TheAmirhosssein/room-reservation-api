@@ -30,3 +30,9 @@ func (u UserUseCase) DoesUserExist(mobileNumber string) bool {
 	u.Repo.ByMobileNumber(mobileNumber, &user)
 	return user.ID != 0
 }
+
+func (u UserUseCase) GetUserById(id uint) (entity.User, error) {
+	user := new(entity.User)
+	query := u.Repo.ById(id, user)
+	return *user, query.Error
+}

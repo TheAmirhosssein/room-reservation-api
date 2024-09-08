@@ -53,3 +53,22 @@ func TestUserUseCase_DoesUserExist(t *testing.T) {
 	result = userUseCase.DoesUserExist(MobileNumber)
 	assert.True(t, result)
 }
+
+func TestUserRepository_GetUserById(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
+	repo := repository.NewUserRepository(db)
+
+	userUseCase := usecase.NewUserUseCase(repo)
+	_, err = userUseCase.GetUserById(1)
+	assert.Error(t, err)
+
+	user := entity.NewUser("something", "09001231010")
+	repo.Save(&user)
+
+	_, err = userUseCase.GetUserById(1)
+	assert.NoError(t, err)
+}
