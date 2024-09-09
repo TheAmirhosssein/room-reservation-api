@@ -9,6 +9,6 @@ type User struct {
 	Roles        []string `gorm:"type:text[]"`
 }
 
-func NewUser(fullName, mobileNumber string) User {
+func NewUser(fullName, mobileNumber string, roles ...string) User {
 	return User{FullName: fullName, MobileNumber: mobileNumber}
 }
