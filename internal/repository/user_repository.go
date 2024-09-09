@@ -9,6 +9,7 @@ type UserRepository interface {
 	Save(*entity.User) error
 	ByMobileNumber(string, *entity.User) *gorm.DB
 	ById(uint, *entity.User) *gorm.DB
+	Delete(*entity.User) *gorm.DB
 }
 
 type userRepository struct {
