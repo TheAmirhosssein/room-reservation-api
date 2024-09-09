@@ -66,3 +66,23 @@ func TestUserRepository_ById(t *testing.T) {
 	repo.Save(&user)
 	assert.Equal(t, uint(1), user.ID)
 }
+
+func TestUserRepository_Delete(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	db.AutoMigrate(&entity.User{})
+	repo := repository.NewUserRepository(db)
+
+	user := entity.NewUser("something", "09900302020")
+	repo.Save(&user)
+	var count int64
+	db.Model(&entity.User{}).Count(&count)
+
+	repo.Delete(&user)
+	var countAfterDelete int64
+	db.Model(&entity.User{}).Count(&countAfterDelete)
+
+	assert.Equal(t, countAfterDelete, count-1)
+}

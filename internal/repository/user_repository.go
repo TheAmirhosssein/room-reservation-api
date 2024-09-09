@@ -30,3 +30,7 @@ func (userRepo userRepository) ByMobileNumber(value string, user *entity.User) *
 func (userRepo userRepository) ById(id uint, user *entity.User) *gorm.DB {
 	return userRepo.db.First(&user, "ID = ?", id)
 }
+
+func (userRepo userRepository) Delete(user *entity.User) *gorm.DB {
+	return userRepo.db.Delete(user)
+}
