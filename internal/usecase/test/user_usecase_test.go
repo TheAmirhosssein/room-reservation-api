@@ -101,3 +101,23 @@ func TestUserUseCase_Update(t *testing.T) {
 	assert.Equal(t, user.ID, updateUser.ID)
 	assert.Equal(t, user.FullName, updateUser.FullName)
 }
+
+func TestUserUseCase_DeleteById(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	assert.NoError(t, err)
+	db.AutoMigrate(&entity.User{})
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+
+	user := entity.NewUser("something", "09900302020")
+	repo.Save(&user)
+	var count int64
+	db.Model(&entity.User{}).Count(&count)
+
+	err = useCase.DeleteById(user.ID)
+	assert.NoError(t, err)
+	var countAfterDelete int64
+	db.Model(&entity.User{}).Count(&countAfterDelete)
+
+	assert.Equal(t, countAfterDelete, count-1)
+}

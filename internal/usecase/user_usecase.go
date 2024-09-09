@@ -51,3 +51,11 @@ func (u UserUseCase) Update(user *entity.User) error {
 	user.ID = userToUpdate.ID
 	return u.Repo.Save(user)
 }
+
+func (u UserUseCase) DeleteById(id uint) error {
+	user, err := u.GetUserById(id)
+	if err != nil {
+		return err
+	}
+	return u.Repo.Delete(&user).Error
+}
