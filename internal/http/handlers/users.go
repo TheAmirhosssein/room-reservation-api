@@ -105,3 +105,15 @@ func UpdateUser(context *gin.Context) {
 	userResponse := models.NewUserResponse(updateUser)
 	context.JSON(http.StatusOK, userResponse)
 }
+
+func DeleteAccount(context *gin.Context) {
+	db := database.GetDb()
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+	err := useCase.DeleteById(context.GetUint("userId"))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+		return
+	}
+	context.JSON(http.StatusNoContent, nil)
+}

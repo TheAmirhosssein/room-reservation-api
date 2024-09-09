@@ -167,3 +167,41 @@ func TestEditMeInfo(t *testing.T) {
 	userRepo.ById(user.ID, userAfterUpdate)
 	assert.Equal(t, userAfterUpdate.FullName, "something else")
 }
+
+func TestDeleteAccount(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	user, token := createUserAndToken(userRepo)
+
+	userRepo.Save(&user)
+	var count int64
+	db.Model(&entity.User{}).Count(&count)
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	req, _ := http.NewRequest("DELETE", "/user/me", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+
+	req, _ = http.NewRequest("DELETE", "/user/me", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+
+	userRepo.Delete(&user)
+	var countAfterDelete int64
+	db.Model(&entity.User{}).Count(&countAfterDelete)
+	assert.Equal(t, countAfterDelete, count-1)
+
+	req, _ = http.NewRequest("GET", "/user/me", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
