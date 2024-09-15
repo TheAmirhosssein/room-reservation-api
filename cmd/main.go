@@ -13,6 +13,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config error: %s", err)
 	}
-	database.StartDB()
+	err = database.StartDB()
+	if err != nil {
+		log.Fatalf("Database error: %s", err)
+	}
 	server.Run(conf)
 }

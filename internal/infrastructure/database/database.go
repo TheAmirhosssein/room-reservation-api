@@ -5,6 +5,8 @@ import (
 
 	"github.com/TheAmirhosssein/room-reservation-api/config"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -22,12 +24,21 @@ func Migrate(db *gorm.DB) error {
 	return db.AutoMigrate(&entity.User{}, &entity.Role{})
 }
 
-func StartDB() {
+func RoleInitiation(db *gorm.DB) error {
+	roleRepo := repository.NewRoleRepository(db)
+	roleUseCase := usecase.NewRoleUserCase(roleRepo)
+	roles := []string{entity.AdminRole, entity.SupportRole, entity.UserRole}
+	return roleUseCase.SetUpRoles(roles)
+}
+
+func StartDB() error {
 	db := GetDb()
 	err := Migrate(db)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
+	err = RoleInitiation(db)
+	return err
 }
 
 func GetDb() *gorm.DB {
