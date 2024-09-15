@@ -18,13 +18,13 @@ func initDB(host, user, password, name string) (*gorm.DB, error) {
 	return db, err
 }
 
-func migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&entity.User{})
+func Migrate(db *gorm.DB) error {
+	return db.AutoMigrate(&entity.User{}, &entity.Role{})
 }
 
 func StartDB() {
 	db := GetDb()
-	err := migrate(db)
+	err := Migrate(db)
 	if err != nil {
 		panic(err.Error())
 	}

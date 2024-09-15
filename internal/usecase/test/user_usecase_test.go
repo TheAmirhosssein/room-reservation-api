@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +17,7 @@ func TestUserUseCase_GetUserOrCreate(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(repo)
 	mobileNumber := "090012305412"
@@ -39,7 +40,7 @@ func TestUserUseCase_DoesUserExist(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(repo)
 
@@ -59,7 +60,7 @@ func TestUserRepository_GetUserById(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 
 	userUseCase := usecase.NewUserUseCase(repo)
@@ -78,7 +79,7 @@ func TestUserUseCase_Update(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 
@@ -105,7 +106,7 @@ func TestUserUseCase_Update(t *testing.T) {
 func TestUserUseCase_DeleteById(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	assert.NoError(t, err)
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 

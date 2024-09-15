@@ -1,7 +1,6 @@
 package database
 
 import (
-	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -13,7 +12,7 @@ func InitiateTestDB() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	Migrate(db)
 	testDb = db
 }
 

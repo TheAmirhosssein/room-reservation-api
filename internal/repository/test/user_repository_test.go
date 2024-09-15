@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
+	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
@@ -15,7 +16,7 @@ func TestUserRepository_Save(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
 	err = repo.Save(&user)
@@ -34,7 +35,7 @@ func TestUserRepository_ByMobileNumber(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	user := entity.NewUser("something", "09000000000")
 	err = repo.Save(&user)
@@ -55,7 +56,7 @@ func TestUserRepository_ById(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 
 	user := entity.User{}
@@ -72,7 +73,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&entity.User{})
+	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 
 	user := entity.NewUser("something", "09900302020")
