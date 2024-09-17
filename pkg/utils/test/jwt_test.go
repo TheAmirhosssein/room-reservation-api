@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/pkg/utils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,6 @@ func TestTokenValidation(t *testing.T) {
 	_, err = utils.ValidateToken("invalidToken")
 	assert.Error(t, err)
 
-	_, err = utils.GenerateAccessToken(1, "something")
+	_, err = utils.GenerateAccessToken(1, "something", entity.UserRole)
 	assert.NoError(t, err)
 }

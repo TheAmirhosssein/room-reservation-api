@@ -37,5 +37,6 @@ func AuthenticateMiddleware(context *gin.Context) {
 	}
 	context.Set("userId", uint(claims["userId"].(float64)))
 	context.Set("mobileNumber", mobileNumber)
+	context.Set("role", claims["role"].(string))
 	context.Next()
 }

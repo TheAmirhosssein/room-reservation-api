@@ -63,7 +63,7 @@ func Token(context *gin.Context) {
 	userUseCase := usecase.NewUserUseCase(userRepo)
 	var user entity.User
 	userUseCase.Repo.ByMobileNumber(body.MobileNumber, &user)
-	accessToken, err := utils.GenerateAccessToken(user.ID, user.MobileNumber)
+	accessToken, err := utils.GenerateAccessToken(user.ID, user.MobileNumber, user.Role)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
 		return

@@ -54,7 +54,7 @@ func TestAuthentication(t *testing.T) {
 	assert.Equal(t, string(response), expectedResponse)
 
 	mobileNumber := "09001110011"
-	token, err := utils.GenerateAccessToken(1, mobileNumber)
+	token, err := utils.GenerateAccessToken(1, mobileNumber, entity.UserRole)
 	assert.NoError(t, err)
 
 	req, _ = http.NewRequest("GET", "/", nil)

@@ -21,10 +21,11 @@ func getSecretKey() (string, error) {
 	return conf.APP.SecretKey, nil
 }
 
-func GenerateAccessToken(userId uint, mobileNumber string) (string, error) {
+func GenerateAccessToken(userId uint, mobileNumber, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":       userId,
 		"mobileNumber": mobileNumber,
+		"role":         role,
 		"exp":          time.Now().Add(time.Hour * (24 * 365)).Unix(),
 	})
 	secretKey, err := getSecretKey()
