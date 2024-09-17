@@ -48,7 +48,7 @@ func (u UserUseCase) Update(user *entity.User) error {
 	if err != nil {
 		return err
 	}
-	user.Roles = userToUpdate.Roles
+	user.Role = userToUpdate.Role
 	user.ID = userToUpdate.ID
 	return u.Repo.Save(user)
 }
