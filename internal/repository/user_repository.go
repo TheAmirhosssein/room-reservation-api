@@ -11,6 +11,7 @@ type UserRepository interface {
 	ById(uint, *entity.User) *gorm.DB
 	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
+	AllUser() ([]entity.User, error)
 }
 
 type userRepository struct {
@@ -39,4 +40,10 @@ func (userRepo userRepository) Update(user *entity.User, newInfo map[string]any)
 
 func (userRepo userRepository) Delete(user *entity.User) *gorm.DB {
 	return userRepo.db.Delete(user)
+}
+
+func (userRepo userRepository) AllUser() ([]entity.User, error) {
+	var users []entity.User
+	err := userRepo.db.Find(&users).Error
+	return users, err
 }
