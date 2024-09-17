@@ -53,3 +53,7 @@ func (u UserUseCase) DeleteById(id uint) error {
 	}
 	return u.Repo.Delete(&user).Error
 }
+
+func (u UserUseCase) AllUser() ([]entity.User, error) {
+	return u.Repo.AllUser()
+}
