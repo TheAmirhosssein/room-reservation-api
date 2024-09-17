@@ -35,6 +35,7 @@ func NewUserResponse(userEntity entity.User) UserResponse {
 		MobileNumber: userEntity.MobileNumber,
 		FullName:     userEntity.FullName,
 		JoinedAt:     userEntity.CreatedAt,
+		Role:         userEntity.Role,
 	}
 }
 
