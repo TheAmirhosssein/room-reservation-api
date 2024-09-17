@@ -92,17 +92,23 @@ func UpdateUser(context *gin.Context) {
 		context.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
 		return
 	}
+
 	db := database.GetDb()
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
-	mobileNumber := context.GetString("mobileNumber")
-	updateUser := entity.NewUser(body.FullName, mobileNumber, entity.UserRole)
-	err = useCase.Update(&updateUser)
+	data := map[string]any{"FullName": body.FullName}
+	id := context.GetUint("userId")
+	err = useCase.Update(id, data)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
 	}
-	userResponse := models.NewUserResponse(updateUser)
+	user, err := useCase.GetUserById(id)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+		return
+	}
+	userResponse := models.NewUserResponse(user)
 	context.JSON(http.StatusOK, userResponse)
 }
 

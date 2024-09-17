@@ -85,24 +85,14 @@ func TestUserUseCase_Update(t *testing.T) {
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 
-	user := entity.NewUser("something", "", entity.UserRole)
-	err = useCase.Update(&user)
-	assert.Error(t, err)
-	assert.EqualError(t, err, "mobile number can not be empty")
-
-	user = entity.NewUser("", "09001234565", entity.UserRole)
-	err = useCase.Update(&user)
-	assert.Error(t, err)
-	assert.NotEqual(t, err.Error(), "mobile number can not be empty")
-
+	user := entity.NewUser("something", "09001234565", entity.UserRole)
 	err = repo.Save(&user)
-	updateUser := entity.NewUser("something else", "09001234565", entity.UserRole)
+
 	assert.NoError(t, err)
-	err = useCase.Update(&updateUser)
+	err = useCase.Update(user.ID, map[string]any{"FullName": "something else"})
 	assert.NoError(t, err)
 	repo.ById(user.ID, &user)
-	assert.Equal(t, user.ID, updateUser.ID)
-	assert.Equal(t, user.FullName, updateUser.FullName)
+	assert.Equal(t, user.FullName, "something else")
 }
 
 func TestUserUseCase_DeleteById(t *testing.T) {
