@@ -16,5 +16,5 @@ type User struct {
 }
 
 func NewUser(fullName, mobileNumber, role string) User {
-	return User{FullName: fullName, MobileNumber: mobileNumber}
+	return User{FullName: fullName, MobileNumber: mobileNumber, Role: role}
 }
