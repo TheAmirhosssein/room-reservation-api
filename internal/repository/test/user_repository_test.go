@@ -68,6 +68,23 @@ func TestUserRepository_ById(t *testing.T) {
 	assert.Equal(t, uint(1), user.ID)
 }
 
+func TestUserRepository_Update(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewUserRepository(db)
+
+	user := entity.NewUser("something", "09001230024", entity.UserRole)
+	err = repo.Save(&user)
+	assert.NoError(t, err)
+
+	err = repo.Update(&user, map[string]any{"FullName": "something else"})
+	assert.NoError(t, err)
+	assert.Equal(t, user.FullName, "something else")
+}
+
 func TestUserRepository_Delete(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {

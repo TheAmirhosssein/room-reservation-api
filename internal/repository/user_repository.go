@@ -9,6 +9,7 @@ type UserRepository interface {
 	Save(*entity.User) error
 	ByMobileNumber(string, *entity.User) *gorm.DB
 	ById(uint, *entity.User) *gorm.DB
+	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
 }
 
@@ -30,6 +31,10 @@ func (userRepo userRepository) ByMobileNumber(value string, user *entity.User) *
 
 func (userRepo userRepository) ById(id uint, user *entity.User) *gorm.DB {
 	return userRepo.db.First(&user, "ID = ?", id)
+}
+
+func (userRepo userRepository) Update(user *entity.User, newInfo map[string]any) error {
+	return userRepo.db.Model(&user).Updates(newInfo).Error
 }
 
 func (userRepo userRepository) Delete(user *entity.User) *gorm.DB {
