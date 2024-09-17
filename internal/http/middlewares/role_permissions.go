@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SupportOrAdminRoleMiddleware(context *gin.Context) {
+func SupportOrAdminMiddleware(context *gin.Context) {
 	role := context.GetString("role")
 	fmt.Println(role)
 	if !(role == entity.SupportRole || role == entity.AdminRole) {

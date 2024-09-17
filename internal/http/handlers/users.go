@@ -123,3 +123,16 @@ func DeleteAccount(context *gin.Context) {
 	}
 	context.JSON(http.StatusNoContent, nil)
 }
+
+func AllUsers(context *gin.Context) {
+	db := database.GetDb()
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+	allUser, err := useCase.AllUser()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+		return
+	}
+	response := models.NewUserListResponse(allUser)
+	context.JSON(http.StatusOK, response)
+}

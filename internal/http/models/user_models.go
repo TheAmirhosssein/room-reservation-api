@@ -26,6 +26,7 @@ type UserResponse struct {
 	MobileNumber string    `json:"mobile_number"`
 	FullName     string    `json:"full_name"`
 	JoinedAt     time.Time `json:"joined_at"`
+	Role         string    `json:"role"`
 }
 
 func NewUserResponse(userEntity entity.User) UserResponse {
@@ -35,4 +36,12 @@ func NewUserResponse(userEntity entity.User) UserResponse {
 		FullName:     userEntity.FullName,
 		JoinedAt:     userEntity.CreatedAt,
 	}
+}
+
+func NewUserListResponse(userEntityList []entity.User) []UserResponse {
+	var finalResponse []UserResponse
+	for _, user := range userEntityList {
+		finalResponse = append(finalResponse, NewUserResponse(user))
+	}
+	return finalResponse
 }

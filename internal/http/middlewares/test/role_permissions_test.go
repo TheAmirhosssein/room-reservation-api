@@ -20,7 +20,7 @@ func TestSupportOrAdminRoleMiddleware(t *testing.T) {
 	db := database.GetDb()
 
 	server := gin.Default()
-	server.GET("/", middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminRoleMiddleware, func(ctx *gin.Context) {
+	server.GET("/", middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware, func(ctx *gin.Context) {
 		mobileNumber := ctx.GetString("mobileNumber")
 		userId := ctx.GetUint("userId")
 		ctx.JSON(http.StatusOK, gin.H{"id": userId, "mobile_number": mobileNumber})

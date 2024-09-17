@@ -21,9 +21,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createUserAndToken(userRepo repository.UserRepository) (entity.User, string) {
+func createUserAndToken(userRepo repository.UserRepository, role string) (entity.User, string) {
 	mobileNumber := "09001110011"
-	user := entity.NewUser("something", mobileNumber, entity.UserRole)
+	user := entity.NewUser("something", mobileNumber, role)
 	userRepo.Save(&user)
 	token, err := utils.GenerateAccessToken(user.ID, mobileNumber, user.Role)
 	if err != nil {
@@ -110,7 +110,7 @@ func TestMeHandler(t *testing.T) {
 
 	db := database.TestDb()
 	userRepo := repository.NewUserRepository(db)
-	user, token := createUserAndToken(userRepo)
+	user, token := createUserAndToken(userRepo, entity.UserRole)
 
 	server := gin.Default()
 	routers.UserRouters(server, "user")
@@ -139,7 +139,7 @@ func TestEditMeInfo(t *testing.T) {
 
 	db := database.TestDb()
 	userRepo := repository.NewUserRepository(db)
-	user, token := createUserAndToken(userRepo)
+	user, token := createUserAndToken(userRepo, entity.UserRole)
 
 	server := gin.Default()
 	routers.UserRouters(server, "user")
@@ -174,7 +174,7 @@ func TestDeleteAccount(t *testing.T) {
 
 	db := database.TestDb()
 	userRepo := repository.NewUserRepository(db)
-	user, token := createUserAndToken(userRepo)
+	user, token := createUserAndToken(userRepo, entity.UserRole)
 
 	userRepo.Save(&user)
 	var count int64
@@ -204,4 +204,36 @@ func TestDeleteAccount(t *testing.T) {
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+func TestAllUsers(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	_, userToken := createUserAndToken(userRepo, entity.UserRole)
+	req, _ := http.NewRequest("GET", "/user/users", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/user/users", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/user/users", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
