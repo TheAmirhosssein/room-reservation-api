@@ -3,9 +3,9 @@ package entity
 import "gorm.io/gorm"
 
 const (
-	AdminRole   = "Admin"
-	SupportRole = "Support"
-	UserRole    = "User"
+	AdminRole   string = "Admin"
+	SupportRole string = "Support"
+	UserRole    string = "User"
 )
 
 type User struct {
@@ -15,6 +15,6 @@ type User struct {
 	Role         string
 }
 
-func NewUser(fullName, mobileNumber string) User {
+func NewUser(fullName, mobileNumber, role string) User {
 	return User{FullName: fullName, MobileNumber: mobileNumber}
 }

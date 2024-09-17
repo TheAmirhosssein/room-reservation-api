@@ -96,7 +96,7 @@ func UpdateUser(context *gin.Context) {
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 	mobileNumber := context.GetString("mobileNumber")
-	updateUser := entity.NewUser(body.FullName, mobileNumber)
+	updateUser := entity.NewUser(body.FullName, mobileNumber, entity.UserRole)
 	err = useCase.Update(&updateUser)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})

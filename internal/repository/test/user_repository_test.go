@@ -18,7 +18,7 @@ func TestUserRepository_Save(t *testing.T) {
 	}
 	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
-	user := entity.NewUser("something", "09000000000")
+	user := entity.NewUser("something", "09000000000", entity.UserRole)
 	err = repo.Save(&user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
@@ -37,7 +37,7 @@ func TestUserRepository_ByMobileNumber(t *testing.T) {
 	}
 	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
-	user := entity.NewUser("something", "09000000000")
+	user := entity.NewUser("something", "09000000000", entity.UserRole)
 	err = repo.Save(&user)
 	assert.NoErrorf(t, err, "can not save user, error: %v", err)
 
@@ -63,7 +63,7 @@ func TestUserRepository_ById(t *testing.T) {
 	repo.ById(1, &user)
 	assert.Equal(t, uint(0), user.ID)
 
-	user = entity.NewUser("something", "09001231021")
+	user = entity.NewUser("something", "09001231021", entity.UserRole)
 	repo.Save(&user)
 	assert.Equal(t, uint(1), user.ID)
 }
@@ -76,7 +76,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 
-	user := entity.NewUser("something", "09900302020")
+	user := entity.NewUser("something", "09900302020", entity.UserRole)
 	repo.Save(&user)
 	var count int64
 	db.Model(&entity.User{}).Count(&count)

@@ -20,12 +20,14 @@ func TestUserUseCase_GetUserOrCreate(t *testing.T) {
 	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(repo)
+
 	mobileNumber := "090012305412"
 	var count int64
 	db.Model(&entity.User{}).Count(&count)
 	user, err := userUseCase.GetUserOrCreate(mobileNumber)
 	assert.NoError(t, err)
 	assert.Equal(t, user.MobileNumber, mobileNumber)
+
 	var countAfter int64
 	db.Model(&entity.User{}).Count(&countAfter)
 	count += 1
@@ -48,7 +50,7 @@ func TestUserUseCase_DoesUserExist(t *testing.T) {
 	result := userUseCase.DoesUserExist(MobileNumber)
 	assert.False(t, result)
 
-	user := entity.NewUser("something", MobileNumber)
+	user := entity.NewUser("something", MobileNumber, entity.UserRole)
 	err = repo.Save(&user)
 	assert.NoError(t, err)
 	result = userUseCase.DoesUserExist(MobileNumber)
@@ -67,7 +69,7 @@ func TestUserRepository_GetUserById(t *testing.T) {
 	_, err = userUseCase.GetUserById(1)
 	assert.Error(t, err)
 
-	user := entity.NewUser("something", "09001231010")
+	user := entity.NewUser("something", "09001231010", entity.UserRole)
 	repo.Save(&user)
 
 	_, err = userUseCase.GetUserById(1)
@@ -83,18 +85,18 @@ func TestUserUseCase_Update(t *testing.T) {
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 
-	user := entity.NewUser("something", "")
+	user := entity.NewUser("something", "", entity.UserRole)
 	err = useCase.Update(&user)
 	assert.Error(t, err)
 	assert.EqualError(t, err, "mobile number can not be empty")
 
-	user = entity.NewUser("", "09001234565")
+	user = entity.NewUser("", "09001234565", entity.UserRole)
 	err = useCase.Update(&user)
 	assert.Error(t, err)
 	assert.NotEqual(t, err.Error(), "mobile number can not be empty")
 
 	err = repo.Save(&user)
-	updateUser := entity.NewUser("something else", "09001234565")
+	updateUser := entity.NewUser("something else", "09001234565", entity.UserRole)
 	assert.NoError(t, err)
 	err = useCase.Update(&updateUser)
 	assert.NoError(t, err)
@@ -110,7 +112,7 @@ func TestUserUseCase_DeleteById(t *testing.T) {
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
 
-	user := entity.NewUser("something", "09900302020")
+	user := entity.NewUser("something", "09900302020", entity.UserRole)
 	repo.Save(&user)
 	var count int64
 	db.Model(&entity.User{}).Count(&count)

@@ -66,7 +66,7 @@ func TestAuthentication(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusUnauthorized)
 	assert.Equal(t, string(response), expectedResponse)
 
-	user := entity.NewUser("something", mobileNumber)
+	user := entity.NewUser("something", mobileNumber, entity.UserRole)
 	userRepo := repository.NewUserRepository(db)
 	userRepo.Save(&user)
 	assert.NoError(t, err)
