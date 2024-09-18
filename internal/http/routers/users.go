@@ -13,5 +13,9 @@ func UserRouters(server *gin.Engine, prefix string) {
 	userRouter.GET("me", middlewares.AuthenticateMiddleware, handlers.Me)
 	userRouter.PUT("me", middlewares.AuthenticateMiddleware, handlers.UpdateUser)
 	userRouter.DELETE("me", middlewares.AuthenticateMiddleware, handlers.DeleteAccount)
-	userRouter.GET("users", middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware, handlers.AllUsers)
+
+	adminUser := server.Group(prefix)
+	adminUser.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
+	adminUser.GET("users", handlers.AllUsers)
+	adminUser.GET("users/:id", handlers.RetrieveUser)
 }

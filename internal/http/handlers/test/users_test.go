@@ -237,3 +237,35 @@ func TestAllUsers(t *testing.T) {
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
+func TestRetrieveUser(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	_, userToken := createUserAndToken(userRepo, entity.UserRole)
+	req, _ := http.NewRequest("GET", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/models"
@@ -135,4 +136,26 @@ func AllUsers(context *gin.Context) {
 	}
 	response := models.NewUserListResponse(allUser)
 	context.JSON(http.StatusOK, response)
+}
+
+func RetrieveUser(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid endpoint"})
+		return
+	}
+	db := database.GetDb()
+	userRepo := repository.NewUserRepository(db)
+	userUseCase := usecase.NewUserUseCase(userRepo)
+	user, err := userUseCase.GetUserById(uint(id))
+	if !userUseCase.DoesUserExist(user.MobileNumber) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		return
+	}
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
+		return
+	}
+	userResponse := models.NewUserResponse(user)
+	context.JSON(http.StatusOK, userResponse)
 }
