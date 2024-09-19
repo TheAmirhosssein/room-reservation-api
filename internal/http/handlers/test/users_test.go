@@ -344,3 +344,50 @@ func TestUpdateUser(t *testing.T) {
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
+
+func TestDeleteUser(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	user, token := createUserAndToken(userRepo, entity.UserRole)
+	adminUser, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	_, supportToken := createUserAndToken(userRepo, entity.SupportRole)
+
+	userRepo.Save(&user)
+	var count int64
+	db.Model(&entity.User{}).Count(&count)
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	req, _ := http.NewRequest("DELETE", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	req, _ = http.NewRequest("DELETE", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+
+	var countAfterDelete int64
+	db.Model(&entity.User{}).Count(&countAfterDelete)
+	assert.Equal(t, countAfterDelete, count-1)
+
+	req, _ = http.NewRequest("DELETE", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	address := fmt.Sprintf("/user/users/%v", adminUser.ID)
+	req, _ = http.NewRequest("DELETE", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+}

@@ -19,4 +19,5 @@ func UserRouters(server *gin.Engine, prefix string) {
 	adminUser.GET("users", handlers.AllUsers)
 	adminUser.GET("users/:id", handlers.RetrieveUser)
 	adminUser.PUT("users/:id", handlers.EditUser)
+	adminUser.DELETE("users/:id", handlers.DeleteUser)
 }
