@@ -19,6 +19,11 @@ type (
 	UpdateUser struct {
 		FullName string `json:"full_name" binding:"required"`
 	}
+
+	AdminUpdateUser struct {
+		FullName string `json:"full_name" binding:"required"`
+		Role     string `json:"role" binding:"required"`
+	}
 )
 
 type UserResponse struct {

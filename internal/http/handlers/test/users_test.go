@@ -276,3 +276,71 @@ func TestRetrieveUser(t *testing.T) {
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
+func TestUpdateUser(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	body, _ := json.Marshal(map[string]string{"full_name": "something", "role": "Admin"})
+
+	server := gin.Default()
+	routers.UserRouters(server, "user")
+
+	_, userToken := createUserAndToken(userRepo, entity.UserRole)
+	req, _ := http.NewRequest("PUT", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("PUT", "/user/users/1", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	req, _ = http.NewRequest("PUT", "/user/users/1", bytes.NewBuffer(body))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	updatedUser := new(entity.User)
+	userRepo.ById(1, updatedUser)
+	assert.Equal(t, updatedUser.FullName, "something")
+	assert.Equal(t, updatedUser.Role, "Admin")
+
+	req, _ = http.NewRequest("PUT", "/user/users/50500", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	supportBody, err := json.Marshal(map[string]string{"full_name": "something", "role": "Admin"})
+	assert.NoError(t, err)
+	_, supportToken := createUserAndToken(userRepo, entity.SupportRole)
+	req, _ = http.NewRequest("PUT", "/user/users/1", bytes.NewBuffer(supportBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	responseData, _ := io.ReadAll(w.Body)
+	fmt.Println(string(responseData))
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	newSupportBody, _ := json.Marshal(map[string]string{"full_name": "something else", "role": "User"})
+	req, _ = http.NewRequest("PUT", "/user/users/1", bytes.NewBuffer(newSupportBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	invalidSupportBody, _ := json.Marshal(map[string]string{"full_name": "something else", "role": "ddksodksdksso"})
+	req, _ = http.NewRequest("PUT", "/user/users/1", bytes.NewBuffer(invalidSupportBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}

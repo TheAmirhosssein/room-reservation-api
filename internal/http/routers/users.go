@@ -18,4 +18,5 @@ func UserRouters(server *gin.Engine, prefix string) {
 	adminUser.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
 	adminUser.GET("users", handlers.AllUsers)
 	adminUser.GET("users/:id", handlers.RetrieveUser)
+	adminUser.PUT("users/:id", handlers.EditUser)
 }

@@ -90,7 +90,7 @@ func UpdateUser(context *gin.Context) {
 	body := new(models.UpdateUser)
 	err := context.BindJSON(body)
 	if err != nil {
-		context.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -158,4 +158,49 @@ func RetrieveUser(context *gin.Context) {
 	}
 	userResponse := models.NewUserResponse(user)
 	context.JSON(http.StatusOK, userResponse)
+}
+
+func EditUser(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "invalid endpoint"})
+		return
+	}
+	db := database.GetDb()
+	repo := repository.NewUserRepository(db)
+	userUseCase := usecase.NewUserUseCase(repo)
+	if !userUseCase.DoesUserExist(uint(id)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		return
+	}
+	var updateData map[string]any
+	role := context.GetString("role")
+	data := new(models.AdminUpdateUser)
+	err = context.BindJSON(data)
+	if err != nil {
+		context.JSONP(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	if !validators.IsRoleValid(data.Role) {
+		context.JSONP(http.StatusBadRequest, gin.H{"message": "invalid role"})
+		return
+	}
+	if role == entity.SupportRole && data.Role == entity.AdminRole {
+		context.JSONP(http.StatusBadRequest, gin.H{"message": "invalid role to select"})
+		return
+	}
+	updateData = map[string]any{"full_name": data.FullName, "role": data.Role}
+
+	err = userUseCase.Update(uint(id), updateData)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
+		return
+	}
+	user, err := userUseCase.GetUserById(uint(id))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong!"})
+		return
+	}
+	response := models.NewUserResponse(user)
+	context.JSON(http.StatusOK, response)
 }
