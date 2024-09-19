@@ -30,13 +30,13 @@ func AuthenticateMiddleware(context *gin.Context) {
 	db := database.GetDb()
 	userRepo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(userRepo)
-	mobileNumber := claims["mobileNumber"].(string)
-	if !userUseCase.DoesUserExist(mobileNumber) {
+	id := uint(claims["userId"].(float64))
+	if !userUseCase.DoesUserExist(id) {
 		context.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "invalid user"})
 		return
 	}
-	context.Set("userId", uint(claims["userId"].(float64)))
-	context.Set("mobileNumber", mobileNumber)
+	context.Set("userId", id)
+	context.Set("mobileNumber", claims["mobileNumber"].(string))
 	context.Set("role", claims["role"].(string))
 	context.Next()
 }

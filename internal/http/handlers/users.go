@@ -148,7 +148,7 @@ func RetrieveUser(context *gin.Context) {
 	userRepo := repository.NewUserRepository(db)
 	userUseCase := usecase.NewUserUseCase(userRepo)
 	user, err := userUseCase.GetUserById(uint(id))
-	if !userUseCase.DoesUserExist(user.MobileNumber) {
+	if !userUseCase.DoesUserExist(user.ID) {
 		context.JSON(http.StatusNotFound, gin.H{"message": "user not found"})
 		return
 	}

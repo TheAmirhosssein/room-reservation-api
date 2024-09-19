@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 	"time"
 
@@ -22,7 +24,7 @@ import (
 )
 
 func createUserAndToken(userRepo repository.UserRepository, role string) (entity.User, string) {
-	mobileNumber := "09001110011"
+	mobileNumber := strconv.Itoa(rand.Int())
 	user := entity.NewUser("something", mobileNumber, role)
 	userRepo.Save(&user)
 	token, err := utils.GenerateAccessToken(user.ID, mobileNumber, user.Role)
@@ -127,7 +129,6 @@ func TestMeHandler(t *testing.T) {
 	response, _ := io.ReadAll(w.Body)
 	var result map[string]any
 	json.Unmarshal(response, &result)
-	fmt.Println(result)
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, user.ID, uint(result["id"].(float64)))
 	assert.Equal(t, user.MobileNumber, result["mobile_number"])
@@ -261,6 +262,12 @@ func TestRetrieveUser(t *testing.T) {
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
+
+	req, _ = http.NewRequest("GET", "/user/users/50500", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
 
 	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
 	req, _ = http.NewRequest("GET", "/user/users/1", nil)

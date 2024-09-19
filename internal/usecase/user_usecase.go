@@ -1,8 +1,11 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
+	"gorm.io/gorm"
 )
 
 type UserUseCase struct {
@@ -25,10 +28,10 @@ func (u UserUseCase) GetUserOrCreate(mobileNumber string) (*entity.User, error) 
 	return &user, nil
 }
 
-func (u UserUseCase) DoesUserExist(mobileNumber string) bool {
+func (u UserUseCase) DoesUserExist(id uint) bool {
 	user := new(entity.User)
-	u.Repo.ByMobileNumber(mobileNumber, user)
-	return user.ID != 0
+	err := u.Repo.ById(id, user).Error
+	return !(errors.Is(err, gorm.ErrRecordNotFound))
 }
 
 func (u UserUseCase) GetUserById(id uint) (entity.User, error) {

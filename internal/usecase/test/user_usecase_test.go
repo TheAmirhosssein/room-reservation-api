@@ -47,13 +47,13 @@ func TestUserUseCase_DoesUserExist(t *testing.T) {
 	userUseCase := usecase.NewUserUseCase(repo)
 
 	MobileNumber := "09001230101"
-	result := userUseCase.DoesUserExist(MobileNumber)
+	result := userUseCase.DoesUserExist(1)
 	assert.False(t, result)
 
 	user := entity.NewUser("something", MobileNumber, entity.UserRole)
 	err = repo.Save(&user)
 	assert.NoError(t, err)
-	result = userUseCase.DoesUserExist(MobileNumber)
+	result = userUseCase.DoesUserExist(1)
 	assert.True(t, result)
 }
 
