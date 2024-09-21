@@ -133,3 +133,18 @@ func TestUserUseCase_AllUser(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int(count), len(users))
 }
+
+func TestUserUseCase_Count(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewUserRepository(db)
+	useCase := usecase.NewUserUseCase(repo)
+	user := entity.NewUser("something", "09900302020", entity.UserRole)
+	repo.Save(&user)
+	count, err := useCase.Count()
+	assert.NoError(t, err)
+	assert.Equal(t, count, 1)
+}

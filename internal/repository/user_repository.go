@@ -12,6 +12,7 @@ type UserRepository interface {
 	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
 	AllUser(int, int) ([]entity.User, error)
+	Count() (int, error)
 }
 
 type userRepository struct {
@@ -46,4 +47,10 @@ func (userRepo userRepository) AllUser(limit, offset int) ([]entity.User, error)
 	var users []entity.User
 	err := userRepo.db.Limit(limit).Offset(offset).Find(&users).Error
 	return users, err
+}
+
+func (userRepo userRepository) Count() (int, error) {
+	var count int64
+	err := userRepo.db.Model(&entity.User{}).Count(&count).Error
+	return int(count), err
 }
