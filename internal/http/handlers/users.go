@@ -131,13 +131,18 @@ func AllUsers(context *gin.Context) {
 	useCase := usecase.NewUserUseCase(repo)
 	pageSize := utils.ParseQueryParamToInt(context.Query("page-size"), 10)
 	pageNumber := utils.ParseQueryParamToInt(context.Query("page"), 1)
-	fmt.Println(pageNumber, pageSize)
 	allUser, err := useCase.AllUser(pageNumber, pageSize)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
 	}
-	response := models.NewUserListResponse(allUser)
+	usersCount, err := useCase.Count()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
+		return
+	}
+	userResponse := models.NewUserListResponse(allUser)
+	response := utils.GenerateListResponse(userResponse, usersCount, pageSize, pageNumber)
 	context.JSON(http.StatusOK, response)
 }
 
