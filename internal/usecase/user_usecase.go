@@ -57,6 +57,7 @@ func (u UserUseCase) DeleteById(id uint) error {
 	return u.Repo.Delete(&user).Error
 }
 
-func (u UserUseCase) AllUser() ([]entity.User, error) {
-	return u.Repo.AllUser()
+func (u UserUseCase) AllUser(count, itemCount int) ([]entity.User, error) {
+	offset := (count - 1) * itemCount
+	return u.Repo.AllUser(itemCount, offset)
 }

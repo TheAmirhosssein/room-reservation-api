@@ -118,7 +118,11 @@ func TestUserRepository_AllUser(t *testing.T) {
 	var count int64
 	db.Model(&entity.User{}).Count(&count)
 
-	users, err := repo.AllUser()
+	newUser := entity.NewUser("something", "09900302023", entity.UserRole)
+	repo.Save(&newUser)
+
+	users, err := repo.AllUser(1, 1)
 	assert.NoError(t, err)
 	assert.Equal(t, int(count), len(users))
+	assert.Equal(t, len(users), 1)
 }

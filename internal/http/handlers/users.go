@@ -129,7 +129,7 @@ func AllUsers(context *gin.Context) {
 	db := database.GetDb()
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
-	allUser, err := useCase.AllUser()
+	allUser, err := useCase.AllUser(1, 10)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
