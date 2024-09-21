@@ -129,7 +129,10 @@ func AllUsers(context *gin.Context) {
 	db := database.GetDb()
 	repo := repository.NewUserRepository(db)
 	useCase := usecase.NewUserUseCase(repo)
-	allUser, err := useCase.AllUser(1, 10)
+	pageSize := utils.ParseQueryParamToInt(context.Query("page-size"), 10)
+	pageNumber := utils.ParseQueryParamToInt(context.Query("page"), 1)
+	fmt.Println(pageNumber, pageSize)
+	allUser, err := useCase.AllUser(pageNumber, pageSize)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
