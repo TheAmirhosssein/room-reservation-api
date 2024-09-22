@@ -139,6 +139,34 @@ func TestUserRepository_AllUser(t *testing.T) {
 	assert.Equal(t, len(users), 1)
 }
 
+func TestUserRepository_PaginateUser(t *testing.T) {
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewUserRepository(db)
+	user := entity.NewUser("something else", "09900302020", entity.UserRole)
+	repo.Save(&user)
+
+	newUser := entity.NewUser("something", "09900302023", entity.UserRole)
+	repo.Save(&newUser)
+
+	var count int64
+	db.Model(&entity.User{}).Count(&count)
+
+	_, query := repo.UserList("", "")
+	assert.NoError(t, query.Error)
+
+	users, err := repo.PaginateUsers(10, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(users), 2)
+
+	users, err = repo.PaginateUsers(1, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(users), 1)
+}
+
 func TestUserRepository_Count(t *testing.T) {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	if err != nil {

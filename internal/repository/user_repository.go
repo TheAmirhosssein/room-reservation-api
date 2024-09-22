@@ -12,6 +12,7 @@ type UserRepository interface {
 	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
 	UserList(string, string) ([]entity.User, *gorm.DB)
+	PaginateUsers(int, int, *gorm.DB) ([]entity.User, error)
 	Count() (int, error)
 }
 
@@ -51,10 +52,10 @@ func (userRepo userRepository) UserList(mobileNumber, fullName string) ([]entity
 	return users, query
 }
 
-func (userRepo userRepository) PaginateUsers(limit, offset int, query *gorm.DB) ([]entity.User, *gorm.DB) {
+func (userRepo userRepository) PaginateUsers(limit, offset int, query *gorm.DB) ([]entity.User, error) {
 	var users []entity.User
-	dbQuery := query.Limit(limit).Offset(offset).Find(&users)
-	return users, dbQuery
+	err := query.Limit(limit).Offset(offset).Find(&users).Error
+	return users, err
 }
 
 func (userRepo userRepository) Count() (int, error) {
