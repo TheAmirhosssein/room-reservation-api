@@ -326,8 +326,6 @@ func TestUpdateUser(t *testing.T) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
-	responseData, _ := io.ReadAll(w.Body)
-	fmt.Println(string(responseData))
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	newSupportBody, _ := json.Marshal(map[string]string{"full_name": "something else", "role": "User"})

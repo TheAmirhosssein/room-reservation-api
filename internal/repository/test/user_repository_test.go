@@ -113,7 +113,7 @@ func TestUserRepository_AllUser(t *testing.T) {
 	database.Migrate(db)
 	repo := repository.NewUserRepository(db)
 
-	user := entity.NewUser("something", "09900302020", entity.UserRole)
+	user := entity.NewUser("something else", "09900302020", entity.UserRole)
 	repo.Save(&user)
 
 	newUser := entity.NewUser("something", "09900302023", entity.UserRole)
@@ -125,7 +125,18 @@ func TestUserRepository_AllUser(t *testing.T) {
 	users, query := repo.UserList("", "")
 	assert.NoError(t, query.Error)
 	assert.Equal(t, int(count), len(users))
-	// assert.Equal(t, len(users), 1)
+
+	users, query = repo.UserList("09900302023", "some")
+	assert.NoError(t, query.Error)
+	assert.Equal(t, len(users), 1)
+
+	users, query = repo.UserList("09900302023", "")
+	assert.NoError(t, query.Error)
+	assert.Equal(t, len(users), 1)
+
+	users, query = repo.UserList("", "something else")
+	assert.NoError(t, query.Error)
+	assert.Equal(t, len(users), 1)
 }
 
 func TestUserRepository_Count(t *testing.T) {
