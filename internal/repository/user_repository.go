@@ -11,7 +11,7 @@ type UserRepository interface {
 	ById(uint, *entity.User) *gorm.DB
 	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
-	AllUser() ([]entity.User, *gorm.DB)
+	UserList(string, string) ([]entity.User, *gorm.DB)
 	Count() (int, error)
 }
 
@@ -43,9 +43,11 @@ func (userRepo userRepository) Delete(user *entity.User) *gorm.DB {
 	return userRepo.db.Delete(user)
 }
 
-func (userRepo userRepository) AllUser() ([]entity.User, *gorm.DB) {
+func (userRepo userRepository) UserList(mobileNumber, fullName string) ([]entity.User, *gorm.DB) {
 	var users []entity.User
-	query := userRepo.db.Find(&users)
+	query := userRepo.db.Model(&entity.User{}).
+		Where("mobile_number LIKE ? AND full_name LIKE ?", "%"+mobileNumber+"%", "%"+fullName+"%").
+		Find(&users)
 	return users, query
 }
 

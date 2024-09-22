@@ -58,7 +58,7 @@ func (u UserUseCase) DeleteById(id uint) error {
 }
 
 func (u UserUseCase) AllUser(count, itemCount int) ([]entity.User, error) {
-	users, query := u.Repo.AllUser()
+	users, query := u.Repo.UserList("", "")
 	return users, query.Error
 }
 

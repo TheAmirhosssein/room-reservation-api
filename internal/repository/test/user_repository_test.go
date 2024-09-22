@@ -122,7 +122,7 @@ func TestUserRepository_AllUser(t *testing.T) {
 	var count int64
 	db.Model(&entity.User{}).Count(&count)
 
-	users, query := repo.AllUser()
+	users, query := repo.UserList("", "")
 	assert.NoError(t, query.Error)
 	assert.Equal(t, int(count), len(users))
 	// assert.Equal(t, len(users), 1)
