@@ -131,7 +131,9 @@ func AllUsers(context *gin.Context) {
 	useCase := usecase.NewUserUseCase(repo)
 	pageSize := utils.ParseQueryParamToInt(context.Query("page-size"), 10)
 	pageNumber := utils.ParseQueryParamToInt(context.Query("page"), 1)
-	allUser, err := useCase.AllUser(pageNumber, pageSize)
+	mobileNumber := context.Query("mobile-number")
+	fullName := context.Query("full-name")
+	allUser, err := useCase.GetUsersList(pageNumber, pageSize, mobileNumber, fullName)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return

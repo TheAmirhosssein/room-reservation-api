@@ -57,9 +57,14 @@ func (u UserUseCase) DeleteById(id uint) error {
 	return u.Repo.Delete(&user).Error
 }
 
-func (u UserUseCase) AllUser(count, itemCount int) ([]entity.User, error) {
-	users, query := u.Repo.UserList("", "")
-	return users, query.Error
+func (u UserUseCase) GetUsersList(pageNumber, pageSize int, mobileNumber, fullName string) ([]entity.User, error) {
+	_, query := u.Repo.UserList(mobileNumber, fullName)
+	if err := query.Error; err != nil {
+		return nil, err
+	}
+	offset := (pageNumber - 1) * pageSize
+	users, err := u.Repo.PaginateUsers(pageSize, offset, query)
+	return users, err
 }
 
 func (u UserUseCase) Count() (int, error) {
