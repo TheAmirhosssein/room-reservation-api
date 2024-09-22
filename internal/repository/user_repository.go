@@ -11,7 +11,7 @@ type UserRepository interface {
 	ById(uint, *entity.User) *gorm.DB
 	Update(*entity.User, map[string]any) error
 	Delete(*entity.User) *gorm.DB
-	AllUser(int, int) ([]entity.User, *gorm.DB)
+	AllUser() ([]entity.User, *gorm.DB)
 	Count() (int, error)
 }
 

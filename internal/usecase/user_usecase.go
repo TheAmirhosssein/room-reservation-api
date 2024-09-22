@@ -58,8 +58,8 @@ func (u UserUseCase) DeleteById(id uint) error {
 }
 
 func (u UserUseCase) AllUser(count, itemCount int) ([]entity.User, error) {
-	offset := (count - 1) * itemCount
-	return u.Repo.AllUser(itemCount, offset)
+	users, query := u.Repo.AllUser()
+	return users, query.Error
 }
 
 func (u UserUseCase) Count() (int, error) {
