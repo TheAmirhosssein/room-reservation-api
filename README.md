@@ -8,4 +8,4 @@ run project
 - make sure that makefile is installed in your machine
 - execute `make up` to run project
 - go to /swagger/index.html#/ to watch swagger
-have fun :)
+- have fun :)
