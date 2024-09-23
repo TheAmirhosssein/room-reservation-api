@@ -16,6 +16,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Authenticate godoc
+// @Summary Authenticate user and send code to them
+// @Schemes
+// @Tags users
+// @Accept json
+// @Produce json
+// @Router /users/authenticate [post]
 func Authenticate(context *gin.Context) {
 	authenticateUser := models.Authenticate{}
 	err := context.BindJSON(&authenticateUser)

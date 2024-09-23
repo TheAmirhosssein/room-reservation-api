@@ -1,0 +1,14 @@
+info:
+  contact: {}
+paths:
+  /users/authenticate:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      summary: Authenticate user and send code to them
+      tags:
+      - users
+swagger: "2.0"
