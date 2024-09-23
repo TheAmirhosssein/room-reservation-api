@@ -1,14 +1,340 @@
+definitions:
+  models.AdminUpdateUser:
+    properties:
+      full_name:
+        type: string
+      role:
+        type: string
+    required:
+    - full_name
+    - role
+    type: object
+  models.Authenticate:
+    properties:
+      mobile_number:
+        type: string
+    required:
+    - mobile_number
+    type: object
+  models.Token:
+    properties:
+      code:
+        type: string
+      mobile_number:
+        type: string
+    required:
+    - code
+    - mobile_number
+    type: object
+  models.UpdateUser:
+    properties:
+      full_name:
+        type: string
+    required:
+    - full_name
+    type: object
+  models.UserResponse:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: integer
+      joined_at:
+        type: string
+      mobile_number:
+        type: string
+      role:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /users/authenticate:
+  /user/authenticate:
     post:
       consumes:
       - application/json
+      description: Authenticates a user by their mobile number and generates an OTP
+        code.
+      parameters:
+      - description: User authentication data
+        in: body
+        name: authenticateUser
+        required: true
+        schema:
+          $ref: '#/definitions/models.Authenticate'
       produces:
       - application/json
-      responses: {}
-      summary: Authenticate user and send code to them
+      responses:
+        "200":
+          description: OTP code sent successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid mobile number format or other errors
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authenticate User
       tags:
-      - users
+      - Authentication
+  /user/me:
+    delete:
+      description: Deletes the authenticated user's account.
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User account deleted successfully
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete User Account
+      tags:
+      - User
+    get:
+      description: Retrieves the authenticated user's details.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Information
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Updates the authenticated user's details such as their full name.
+      parameters:
+      - description: User update data
+        in: body
+        name: updateUser
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details updated successfully
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update User Information
+      tags:
+      - User
+  /user/token:
+    post:
+      consumes:
+      - application/json
+      description: Validates the OTP for a given mobile number and generates an access
+        token.
+      parameters:
+      - description: OTP validation data
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/models.Token'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access token generated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid OTP or mobile number
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Validate OTP and Generate Token
+      tags:
+      - Authentication
+  /user/users:
+    get:
+      description: Fetches a paginated list of users, with optional filters for mobile
+        number and full name.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of users per page
+        in: query
+        name: page-size
+        type: integer
+      - description: Filter by mobile number
+        in: query
+        name: mobile-number
+        type: string
+      - description: Filter by full name
+        in: query
+        name: full-name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users retrieved successfully
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retrieve All Users
+      tags:
+      - User
+  /user/users/{id}:
+    delete:
+      description: Deletes a user by their ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User deleted successfully
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: 'Forbidden: insufficient permissions'
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - User
+    get:
+      description: Fetches details of a user by their ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details retrieved successfully
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Invalid ID format
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Retrieve User Information
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Updates user details by ID, including full name and role.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User update data
+        in: body
+        name: updateUser
+        required: true
+        schema:
+          $ref: '#/definitions/models.AdminUpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User details updated successfully
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "400":
+          description: Invalid request body or role
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: User not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Edit User Information
+      tags:
+      - User
 swagger: "2.0"

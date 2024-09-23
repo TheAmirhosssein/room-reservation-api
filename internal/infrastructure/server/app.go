@@ -13,7 +13,7 @@ import (
 
 func Run(conf *config.Config) {
 	server := gin.Default()
-	routers.UserRouters(server, "/api/v1/users")
+	routers.UserRouters(server, "/api/v1/user")
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	server.Run(fmt.Sprintf("%v:%v", conf.HTTP.Host, conf.HTTP.Port))
