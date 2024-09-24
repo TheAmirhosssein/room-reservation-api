@@ -24,7 +24,8 @@ func TestStateUseCase_Test(t *testing.T) {
 	database.Migrate(db)
 	repo := repository.NewStateRepository(db)
 	useCase := usecase.NewStateUseCase(repo)
-	err = useCase.Create(ctx, "something")
+	state := entity.NewState("something")
+	err = useCase.Create(ctx, &state)
 	assert.NoError(t, err)
 
 	var savedState entity.State

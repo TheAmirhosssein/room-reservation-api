@@ -15,7 +15,6 @@ func NewStateUseCase(repo repository.StateRepository) StateUseCase {
 	return StateUseCase{Repo: repo}
 }
 
-func (u StateUseCase) Create(context context.Context, title string) error {
-	state := entity.NewState(title)
-	return u.Repo.Save(context, &state).Error
+func (u StateUseCase) Create(context context.Context, state *entity.State) error {
+	return u.Repo.Save(context, state).Error
 }
