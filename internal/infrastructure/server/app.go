@@ -15,6 +15,7 @@ import (
 func Run(conf *config.Config) {
 	server := gin.Default()
 	routers.UserRouters(server, "/api/v1/user")
+	routers.SettingsRouters(server, "/api/v1/settings")
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
