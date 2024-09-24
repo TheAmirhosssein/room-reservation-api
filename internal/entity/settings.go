@@ -7,6 +7,6 @@ type State struct {
 	Title string
 }
 
-func NewString(title string) State {
+func NewState(title string) State {
 	return State{Title: title}
 }
