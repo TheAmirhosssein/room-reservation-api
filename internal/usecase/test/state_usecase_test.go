@@ -34,3 +34,31 @@ func TestStateUseCase_Test(t *testing.T) {
 
 	assert.Equal(t, "something", savedState.Title)
 }
+
+func TestStateUseCase_GetStatesList(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+
+	state := entity.NewState("something")
+	repo.Save(ctx, &state)
+	newState := entity.NewState("something else")
+	repo.Save(ctx, &newState)
+
+	var count int64
+	db.Model(&entity.State{}).Count(&count)
+
+	states, err := useCase.GetStateList(ctx, 1, 1, "")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(states))
+
+	states, err = useCase.GetStateList(ctx, 1, 10, "something else")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(states))
+}
