@@ -8,6 +8,8 @@ import (
 
 func SettingsRouters(server *gin.Engine, prefix string) {
 	adminUser := server.Group(prefix)
+	settingsRouters := server.Group(prefix)
 	adminUser.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
 	adminUser.POST("states", handlers.CreateState)
+	settingsRouters.GET("states", handlers.StateList)
 }

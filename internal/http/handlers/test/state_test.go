@@ -56,3 +56,35 @@ func TestCreateState(t *testing.T) {
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }
+
+func TestStateList(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+
+	server := gin.Default()
+	routers.SettingsRouters(server, "settings")
+
+	_, userToken := createUserAndToken(userRepo, entity.UserRole)
+	req, _ := http.NewRequest("GET", "/settings/states", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/settings/states", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("GET", "/settings/states", nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+}

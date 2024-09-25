@@ -18,3 +18,11 @@ func NewStateResponse(state entity.State) StateResponse {
 		Title: state.Title,
 	}
 }
+
+func NewStateListResponse(states []entity.State) []StateResponse {
+	var finalResponse []StateResponse
+	for _, state := range states {
+		finalResponse = append(finalResponse, NewStateResponse(state))
+	}
+	return finalResponse
+}

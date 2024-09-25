@@ -29,3 +29,7 @@ func (u StateUseCase) GetStateList(ctx context.Context, page, pageSize int, titl
 	state, err := u.Repo.Paginate(pageSize, offset, query)
 	return state, err
 }
+
+func (u StateUseCase) Count() (int, error) {
+	return u.Repo.Count()
+}

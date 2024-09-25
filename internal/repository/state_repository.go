@@ -11,6 +11,7 @@ type StateRepository interface {
 	Save(context.Context, *entity.State) *gorm.DB
 	StateList(context.Context, string) ([]entity.State, *gorm.DB)
 	Paginate(int, int, *gorm.DB) ([]entity.State, error)
+	Count() (int, error)
 }
 
 type stateRepository struct {
@@ -37,4 +38,10 @@ func (repo stateRepository) Paginate(limit, offset int, query *gorm.DB) ([]entit
 	var states []entity.State
 	err := query.Limit(limit).Offset(offset).Find(&states).Error
 	return states, err
+}
+
+func (repo stateRepository) Count() (int, error) {
+	var count int64
+	err := repo.db.Model(&entity.State{}).Count(&count).Error
+	return int(count), err
 }
