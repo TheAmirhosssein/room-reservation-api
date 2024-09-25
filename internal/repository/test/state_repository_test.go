@@ -64,3 +64,33 @@ func TestStateRepository_StateList(t *testing.T) {
 	assert.NoError(t, query.Error)
 	assert.Equal(t, len(states), 2)
 }
+
+func TestStateRepository_Paginate(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	state := entity.NewState("something else")
+	repo.Save(ctx, &state)
+
+	newState := entity.NewState("something")
+	repo.Save(ctx, &newState)
+
+	var count int64
+	db.Model(&entity.State{}).Count(&count)
+
+	_, query := repo.StateList(ctx, "")
+	assert.NoError(t, query.Error)
+
+	states, err := repo.Paginate(10, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(states), 2)
+
+	states, err = repo.Paginate(1, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(states), 1)
+}
