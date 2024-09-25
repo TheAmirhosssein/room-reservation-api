@@ -62,3 +62,88 @@ func TestStateUseCase_GetStatesList(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(states))
 }
+
+func TestStateUseCase_DoesStateExist(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	stateUseCase := usecase.NewStateUseCase(repo)
+
+	result := stateUseCase.DoesStateExist(ctx, 1)
+	assert.False(t, result)
+
+	state := entity.NewState("something")
+	err = repo.Save(ctx, &state).Error
+	assert.NoError(t, err)
+	result = stateUseCase.DoesStateExist(ctx, 1)
+	assert.True(t, result)
+}
+
+func TestStateRepository_GetStateById(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+
+	stateUseCase := usecase.NewStateUseCase(repo)
+	_, err = stateUseCase.GetStateById(ctx, 1)
+	assert.Error(t, err)
+
+	state := entity.NewState("something")
+	repo.Save(ctx, &state)
+
+	_, err = stateUseCase.GetStateById(ctx, 1)
+	assert.NoError(t, err)
+}
+
+func TestStateUseCase_Update(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+
+	state := entity.NewState("something")
+	err = repo.Save(ctx, &state).Error
+
+	assert.NoError(t, err)
+	err = useCase.Update(ctx, state.ID, map[string]any{"Title": "something else"})
+	assert.NoError(t, err)
+	repo.ById(ctx, state.ID, &state)
+	assert.Equal(t, state.Title, "something else")
+}
+
+func TestStateUseCase_DeleteById(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	assert.NoError(t, err)
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+
+	state := entity.NewState("something")
+	repo.Save(ctx, &state)
+	var count int64
+	db.Model(&entity.State{}).Count(&count)
+
+	err = useCase.DeleteById(ctx, state.ID)
+	assert.NoError(t, err)
+	var countAfterDelete int64
+	db.Model(&entity.State{}).Count(&countAfterDelete)
+
+	assert.Equal(t, countAfterDelete, count-1)
+}
