@@ -94,3 +94,79 @@ func TestStateRepository_Paginate(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(states), 1)
 }
+
+func TestStateRepository_Count(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+	state := entity.NewState("something")
+	repo.Save(ctx, &state)
+	count, err := repo.Count(ctx)
+	assert.NoError(t, err)
+	assert.Equal(t, count, 1)
+}
+
+func TestStateRepository_ById(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+
+	state := entity.State{}
+	repo.ById(ctx, 1, &state)
+	assert.Equal(t, uint(0), state.ID)
+
+	state = entity.NewState("something")
+	repo.Save(ctx, &state)
+	assert.Equal(t, uint(1), state.ID)
+}
+
+func TestStateRepository_Update(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+
+	state := entity.NewState("something")
+	query := repo.Save(ctx, &state)
+	assert.NoError(t, query.Error)
+
+	err = repo.Update(ctx, &state, map[string]any{"title": "something else"})
+	assert.NoError(t, err)
+	assert.Equal(t, state.Title, "something else")
+}
+
+func TestStateRepository_Delete(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	repo := repository.NewStateRepository(db)
+
+	state := entity.NewState("something")
+	repo.Save(ctx, &state)
+	var count int64
+	db.Model(&entity.State{}).Count(&count)
+
+	repo.Delete(ctx, &state)
+	var countAfterDelete int64
+	db.Model(&entity.State{}).Count(&countAfterDelete)
+
+	assert.Equal(t, countAfterDelete, count-1)
+}

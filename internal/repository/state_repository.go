@@ -11,7 +11,10 @@ type StateRepository interface {
 	Save(context.Context, *entity.State) *gorm.DB
 	StateList(context.Context, string) ([]entity.State, *gorm.DB)
 	Paginate(int, int, *gorm.DB) ([]entity.State, error)
-	Count() (int, error)
+	Count(context.Context) (int, error)
+	ById(context.Context, uint, *entity.State) *gorm.DB
+	Update(context.Context, *entity.State, map[string]any) error
+	Delete(context.Context, *entity.State) *gorm.DB
 }
 
 type stateRepository struct {
@@ -40,8 +43,20 @@ func (repo stateRepository) Paginate(limit, offset int, query *gorm.DB) ([]entit
 	return states, err
 }
 
-func (repo stateRepository) Count() (int, error) {
+func (repo stateRepository) Count(ctx context.Context) (int, error) {
 	var count int64
 	err := repo.db.Model(&entity.State{}).Count(&count).Error
 	return int(count), err
+}
+
+func (repo stateRepository) ById(ctx context.Context, id uint, state *entity.State) *gorm.DB {
+	return repo.db.WithContext(ctx).First(&state, "ID = ?", id)
+}
+
+func (repo stateRepository) Update(ctx context.Context, state *entity.State, newInfo map[string]any) error {
+	return repo.db.WithContext(ctx).Model(&state).Updates(newInfo).Error
+}
+
+func (repo stateRepository) Delete(ctx context.Context, state *entity.State) *gorm.DB {
+	return repo.db.WithContext(ctx).Delete(state)
 }

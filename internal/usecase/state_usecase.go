@@ -30,6 +30,6 @@ func (u StateUseCase) GetStateList(ctx context.Context, page, pageSize int, titl
 	return state, err
 }
 
-func (u StateUseCase) Count() (int, error) {
-	return u.Repo.Count()
+func (u StateUseCase) Count(ctx context.Context) (int, error) {
+	return u.Repo.Count(ctx)
 }

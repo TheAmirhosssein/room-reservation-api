@@ -45,7 +45,7 @@ func StateList(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
 	}
-	usersCount, err := useCase.Count()
+	usersCount, err := useCase.Count(context)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"message": "something went wrong"})
 		return
