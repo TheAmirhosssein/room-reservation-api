@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/TheAmirhosssein/room-reservation-api/internal/entity"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/http/models"
@@ -52,5 +53,27 @@ func StateList(context *gin.Context) {
 	}
 	userResponse := models.NewStateListResponse(states)
 	response := utils.GenerateListResponse(userResponse, usersCount, pageSize, pageNumber)
+	context.JSON(http.StatusOK, response)
+}
+
+func RetrieveState(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+	if !useCase.DoesStateExist(context, uint(id)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "state not found"})
+		return
+	}
+	state, err := useCase.GetStateById(context, uint(id))
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	response := models.NewStateResponse(state)
 	context.JSON(http.StatusOK, response)
 }

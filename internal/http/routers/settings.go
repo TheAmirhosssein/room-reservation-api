@@ -12,4 +12,5 @@ func SettingsRouters(server *gin.Engine, prefix string) {
 	adminUser.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
 	adminUser.POST("states", handlers.CreateState)
 	settingsRouters.GET("states", handlers.StateList)
+	settingsRouters.GET("states/:id", handlers.RetrieveState)
 }
