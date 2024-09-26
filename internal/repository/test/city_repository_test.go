@@ -38,3 +38,39 @@ func TestCityRepository_Save(t *testing.T) {
 	assert.Equal(t, city.Title, savedCity.Title)
 	assert.Equal(t, savedCity.State.ID, state.ID)
 }
+
+func TestCityRepository_List(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	database.Migrate(db)
+	stateRepo := repository.NewStateRepository(db)
+	repo := repository.NewCityRepository(db)
+
+	state := entity.NewState("something else")
+	stateRepo.Save(ctx, &state)
+
+	city := entity.NewCity("something else", state)
+	repo.Save(ctx, &city)
+
+	otherCity := entity.NewCity("something", state)
+	repo.Save(ctx, &otherCity)
+
+	var count int64
+	db.Model(&entity.City{}).Count(&count)
+
+	cities, query := repo.List(ctx, "", 1)
+	assert.NoError(t, query.Error)
+	assert.Equal(t, int(count), len(cities))
+
+	cities, query = repo.List(ctx, "else", 1)
+	assert.NoError(t, query.Error)
+	assert.Equal(t, len(cities), 1)
+
+	cities, query = repo.List(ctx, "", 0)
+	assert.NoError(t, query.Error)
+	assert.Equal(t, len(cities), 2)
+}

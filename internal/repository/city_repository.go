@@ -9,6 +9,7 @@ import (
 
 type CityRepository interface {
 	Save(context.Context, *entity.City) *gorm.DB
+	List(context.Context, string, int) ([]entity.City, *gorm.DB)
 }
 
 type cityRepository struct {
@@ -21,4 +22,13 @@ func NewCityRepository(db *gorm.DB) CityRepository {
 
 func (repo cityRepository) Save(ctx context.Context, city *entity.City) *gorm.DB {
 	return repo.db.WithContext(ctx).Save(city)
+}
+
+func (repo cityRepository) List(ctx context.Context, title string, stateId int) ([]entity.City, *gorm.DB) {
+	var cities []entity.City
+	query := repo.db.WithContext(ctx).Preload("State").Model(&entity.City{}).Find(&cities)
+	if stateId != 0 {
+		query.Where("title LIKE ? AND state_id = ?", "%"+title+"%", stateId).Find(&cities)
+	}
+	return cities, query
 }
