@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestStateRepository_Test(t *testing.T) {
+func TestStateRepository_Save(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})

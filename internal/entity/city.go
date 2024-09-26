@@ -4,8 +4,9 @@ import "gorm.io/gorm"
 
 type City struct {
 	gorm.Model
-	Title string
-	State State
+	Title   string
+	StateID uint
+	State   State `gorm:"foreignKey:StateID;references:ID"`
 }
 
 func NewCity(title string, state State) City {
