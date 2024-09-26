@@ -74,3 +74,39 @@ func TestCityRepository_List(t *testing.T) {
 	assert.NoError(t, query.Error)
 	assert.Equal(t, len(cities), 2)
 }
+
+func TestCityRepository_Paginate(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	database.Migrate(db)
+	repo := repository.NewCityRepository(db)
+
+	state := entity.NewState("something")
+	stateRepo := repository.NewStateRepository(db)
+	stateRepo.Save(ctx, &state)
+
+	city := entity.NewCity("something else", state)
+	repo.Save(ctx, &city)
+
+	newCity := entity.NewCity("something", state)
+	repo.Save(ctx, &newCity)
+
+	var count int64
+	db.Model(&entity.City{}).Count(&count)
+
+	_, query := repo.List(ctx, "", 1)
+	assert.NoError(t, query.Error)
+
+	cities, err := repo.Paginate(10, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(cities), 2)
+
+	cities, err = repo.Paginate(1, 0, query)
+	assert.NoError(t, err)
+	assert.Equal(t, len(cities), 1)
+}

@@ -10,6 +10,7 @@ import (
 type CityRepository interface {
 	Save(context.Context, *entity.City) *gorm.DB
 	List(context.Context, string, int) ([]entity.City, *gorm.DB)
+	Paginate(int, int, *gorm.DB) ([]entity.City, error)
 }
 
 type cityRepository struct {
@@ -31,4 +32,10 @@ func (repo cityRepository) List(ctx context.Context, title string, stateId int) 
 		query.Where("title LIKE ? AND state_id = ?", "%"+title+"%", stateId).Find(&cities)
 	}
 	return cities, query
+}
+
+func (repo cityRepository) Paginate(limit, offset int, query *gorm.DB) ([]entity.City, error) {
+	var cities []entity.City
+	err := query.Limit(limit).Offset(offset).Find(&cities).Error
+	return cities, err
 }

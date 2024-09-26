@@ -86,11 +86,11 @@ func TestStateRepository_Paginate(t *testing.T) {
 	_, query := repo.StateList(ctx, "")
 	assert.NoError(t, query.Error)
 
-	states, err := repo.Paginate(10, 0, query)
+	states, err := repo.StatePaginate(10, 0, query)
 	assert.NoError(t, err)
 	assert.Equal(t, len(states), 2)
 
-	states, err = repo.Paginate(1, 0, query)
+	states, err = repo.StatePaginate(1, 0, query)
 	assert.NoError(t, err)
 	assert.Equal(t, len(states), 1)
 }

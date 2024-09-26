@@ -10,7 +10,7 @@ import (
 type StateRepository interface {
 	Save(context.Context, *entity.State) *gorm.DB
 	StateList(context.Context, string) ([]entity.State, *gorm.DB)
-	Paginate(int, int, *gorm.DB) ([]entity.State, error)
+	StatePaginate(int, int, *gorm.DB) ([]entity.State, error)
 	Count(context.Context) (int, error)
 	ById(context.Context, uint, *entity.State) *gorm.DB
 	Update(context.Context, *entity.State, map[string]any) error
@@ -37,7 +37,7 @@ func (repo stateRepository) StateList(ctx context.Context, title string) ([]enti
 	return states, query
 }
 
-func (repo stateRepository) Paginate(limit, offset int, query *gorm.DB) ([]entity.State, error) {
+func (repo stateRepository) StatePaginate(limit, offset int, query *gorm.DB) ([]entity.State, error) {
 	var states []entity.State
 	err := query.Limit(limit).Offset(offset).Find(&states).Error
 	return states, err

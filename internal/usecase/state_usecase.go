@@ -28,7 +28,7 @@ func (u StateUseCase) GetStateList(ctx context.Context, page, pageSize int, titl
 		return nil, err
 	}
 	offset := utils.PageToOffset(page, pageSize)
-	state, err := u.Repo.Paginate(pageSize, offset, query)
+	state, err := u.Repo.StatePaginate(pageSize, offset, query)
 	return state, err
 }
 
