@@ -14,4 +14,5 @@ func SettingsRouters(server *gin.Engine, prefix string) {
 	settingsRouters.GET("states", handlers.StateList)
 	settingsRouters.GET("states/:id", handlers.RetrieveState)
 	adminUser.PUT("states/:id", handlers.UpdateState)
+	adminUser.DELETE("states/:id", handlers.DeleteState)
 }

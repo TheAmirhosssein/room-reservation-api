@@ -110,3 +110,24 @@ func UpdateState(context *gin.Context) {
 	response := models.NewStateResponse(state)
 	context.JSON(http.StatusOK, response)
 }
+
+func DeleteState(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+	if !useCase.DoesStateExist(context, uint(id)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "state not found"})
+		return
+	}
+	err = useCase.DeleteById(context, uint(id))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	context.JSON(http.StatusNoContent, nil)
+}
