@@ -77,3 +77,36 @@ func RetrieveState(context *gin.Context) {
 	response := models.NewStateResponse(state)
 	context.JSON(http.StatusOK, response)
 }
+
+func UpdateState(context *gin.Context) {
+	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	repo := repository.NewStateRepository(db)
+	useCase := usecase.NewStateUseCase(repo)
+	if !useCase.DoesStateExist(context, uint(id)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "state not found"})
+		return
+	}
+	body := new(models.State)
+	err = context.BindJSON(body)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	err = useCase.Update(context, uint(id), map[string]any{"title": body.Title})
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	state, err := useCase.GetStateById(context, uint(id))
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	response := models.NewStateResponse(state)
+	context.JSON(http.StatusOK, response)
+}
