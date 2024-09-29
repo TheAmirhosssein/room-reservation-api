@@ -7,12 +7,16 @@ import (
 )
 
 func SettingsRouters(server *gin.Engine, prefix string) {
-	adminUser := server.Group(prefix)
-	settingsRouters := server.Group(prefix)
-	adminUser.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
-	adminUser.POST("states", handlers.CreateState)
-	settingsRouters.GET("states", handlers.StateList)
-	settingsRouters.GET("states/:id", handlers.RetrieveState)
-	adminUser.PUT("states/:id", handlers.UpdateState)
-	adminUser.DELETE("states/:id", handlers.DeleteState)
+	protectedRoutes := server.Group(prefix)
+	protectedRoutes.Use(middlewares.AuthenticateMiddleware, middlewares.SupportOrAdminMiddleware)
+
+	freeRoutes := server.Group(prefix)
+
+	protectedRoutes.POST("states", handlers.CreateState)
+	freeRoutes.GET("states", handlers.StateList)
+	freeRoutes.GET("states/:id", handlers.RetrieveState)
+	protectedRoutes.PUT("states/:id", handlers.UpdateState)
+	protectedRoutes.DELETE("states/:id", handlers.DeleteState)
+
+	protectedRoutes.POST("states/:stateId/city", handlers.CreateCity)
 }
