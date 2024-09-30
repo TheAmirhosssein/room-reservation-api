@@ -8,6 +8,7 @@ import (
 	"github.com/TheAmirhosssein/room-reservation-api/internal/infrastructure/database"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/repository"
 	"github.com/TheAmirhosssein/room-reservation-api/internal/usecase"
+	"github.com/TheAmirhosssein/room-reservation-api/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,4 +45,37 @@ func CreateCity(context *gin.Context) {
 	}
 	response := models.NewCityResponse(city)
 	context.JSON(http.StatusCreated, response)
+}
+
+func CityList(context *gin.Context) {
+	stateId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	stateRepo := repository.NewStateRepository(db)
+	stateUseCase := usecase.NewStateUseCase(stateRepo)
+	if !stateUseCase.DoesStateExist(context, uint(stateId)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "state not found"})
+		return
+	}
+	pageSize := utils.ParseQueryParamToInt(context.Query("page-size"), 10)
+	pageNumber := utils.ParseQueryParamToInt(context.Query("page"), 1)
+	title := context.Query("title")
+	cityRepo := repository.NewCityRepository(db)
+	cityUseCase := usecase.NewCityUseCase(cityRepo)
+	cities, err := cityUseCase.CityList(context, pageNumber, pageSize, int(stateId), title)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	citiesCount, err := cityUseCase.Count(context)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	city_list := models.NewCityListResponse(cities)
+	response := utils.GenerateListResponse(city_list, citiesCount, pageSize, pageNumber)
+	context.JSON(http.StatusOK, response)
 }

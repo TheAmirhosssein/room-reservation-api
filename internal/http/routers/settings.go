@@ -19,4 +19,5 @@ func SettingsRouters(server *gin.Engine, prefix string) {
 	protectedRoutes.DELETE("states/:id", handlers.DeleteState)
 
 	protectedRoutes.POST("states/:stateId/city", handlers.CreateCity)
+	freeRoutes.GET("states/:id/city", handlers.CityList)
 }

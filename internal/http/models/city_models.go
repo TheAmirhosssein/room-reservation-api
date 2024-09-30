@@ -22,3 +22,11 @@ func NewCityResponse(city entity.City) CityResponse {
 		StateTitle: city.State.Title,
 	}
 }
+
+func NewCityListResponse(cities []entity.City) []CityResponse {
+	var finalResponse []CityResponse
+	for _, city := range cities {
+		finalResponse = append(finalResponse, NewCityResponse(city))
+	}
+	return finalResponse
+}
