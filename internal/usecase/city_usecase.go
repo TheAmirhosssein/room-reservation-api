@@ -38,7 +38,7 @@ func (u CityUseCase) Count(ctx context.Context) (int, error) {
 	return u.Repo.Count(ctx)
 }
 
-func (u CityUseCase) DoesCityExist(ctx context.Context, id uint) bool {
+func (u CityUseCase) DoesCityExist(ctx context.Context, id, stateId uint) bool {
 	city := new(entity.City)
 	err := u.Repo.ById(ctx, id, city).Error
 	return !(errors.Is(err, gorm.ErrRecordNotFound))

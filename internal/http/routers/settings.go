@@ -20,4 +20,5 @@ func SettingsRouters(server *gin.Engine, prefix string) {
 
 	protectedRoutes.POST("states/:stateId/city", handlers.CreateCity)
 	freeRoutes.GET("states/:id/city", handlers.CityList)
+	freeRoutes.GET("states/:id/city/:cityId", handlers.RetrieveCity)
 }

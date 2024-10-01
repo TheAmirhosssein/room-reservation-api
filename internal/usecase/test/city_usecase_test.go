@@ -93,13 +93,20 @@ func TestCityUseCase_DoesCityExist(t *testing.T) {
 	err = stateRepo.Save(ctx, &state).Error
 	assert.NoError(t, err)
 
-	result := cityUseCase.DoesCityExist(ctx, 1)
+	result := cityUseCase.DoesCityExist(ctx, 1, 1)
+	assert.False(t, result)
+
+	otherSate := entity.NewState("something")
+	err = stateRepo.Save(ctx, &otherSate).Error
+	assert.NoError(t, err)
+
+	result = cityUseCase.DoesCityExist(ctx, 1, otherSate.ID)
 	assert.False(t, result)
 
 	city := entity.NewCity("something", state)
 	err = repo.Save(ctx, &city).Error
 	assert.NoError(t, err)
-	result = cityUseCase.DoesCityExist(ctx, 1)
+	result = cityUseCase.DoesCityExist(ctx, 1, 1)
 	assert.True(t, result)
 }
 
