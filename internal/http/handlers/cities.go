@@ -90,14 +90,18 @@ func RetrieveCity(context *gin.Context) {
 	stateRepo := repository.NewStateRepository(db)
 	stateUseCase := usecase.NewStateUseCase(stateRepo)
 	if !stateUseCase.DoesStateExist(context, uint(stateId)) {
-		context.JSON(http.StatusNotFound, gin.H{"message": "state not found"})
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
 		return
 	}
 	cityId, err := strconv.ParseInt(context.Param("cityId"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
 	cityRepo := repository.NewCityRepository(db)
 	cityUseCase := usecase.NewCityUseCase(cityRepo)
 	if !cityUseCase.DoesCityExist(context, uint(cityId), uint(stateId)) {
-		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
 		return
 	}
 	city, err := cityUseCase.ById(context, uint(cityId))
