@@ -156,7 +156,7 @@ func TestCityUseCase_Update(t *testing.T) {
 	err = repo.Save(ctx, &city).Error
 
 	assert.NoError(t, err)
-	err = useCase.Update(ctx, city.ID, map[string]any{"Title": "something else"})
+	city, err = useCase.Update(ctx, city.ID, map[string]any{"Title": "something else"})
 	assert.NoError(t, err)
 	repo.ById(ctx, city.ID, &city)
 	assert.Equal(t, city.Title, "something else")

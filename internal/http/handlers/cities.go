@@ -112,3 +112,43 @@ func RetrieveCity(context *gin.Context) {
 	response := models.NewCityResponse(city)
 	context.JSON(http.StatusOK, response)
 }
+
+func UpdateCity(context *gin.Context) {
+	stateId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	stateRepo := repository.NewStateRepository(db)
+	stateUseCase := usecase.NewStateUseCase(stateRepo)
+	if !stateUseCase.DoesStateExist(context, uint(stateId)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
+		return
+	}
+	cityId, err := strconv.ParseInt(context.Param("cityId"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
+	cityRepo := repository.NewCityRepository(db)
+	cityUseCase := usecase.NewCityUseCase(cityRepo)
+	if !cityUseCase.DoesCityExist(context, uint(cityId), uint(stateId)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
+		return
+	}
+	body := new(models.City)
+	err = context.BindJSON(body)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	updateInfo := map[string]any{"title": body.Title}
+	city, err := cityUseCase.Update(context, uint(cityId), updateInfo)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	response := models.NewCityResponse(city)
+	context.JSON(http.StatusOK, response)
+}

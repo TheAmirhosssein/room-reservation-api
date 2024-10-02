@@ -50,13 +50,13 @@ func (u CityUseCase) ById(ctx context.Context, id uint) (entity.City, error) {
 	return *city, query.Error
 }
 
-func (u CityUseCase) Update(ctx context.Context, id uint, newInfo map[string]any) error {
+func (u CityUseCase) Update(ctx context.Context, id uint, newInfo map[string]any) (entity.City, error) {
 	city, err := u.ById(ctx, id)
 	if err != nil {
-		return err
+		return entity.City{}, err
 	}
 	err = u.Repo.Update(ctx, &city, newInfo)
-	return err
+	return city, err
 }
 
 func (u CityUseCase) DeleteById(ctx context.Context, id uint) error {

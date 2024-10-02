@@ -36,7 +36,7 @@ func TestCreateCity(t *testing.T) {
 
 	state, err := createState(db)
 	assert.NoError(t, err)
-	addres := fmt.Sprintf("/settings/states/%v/city", state.ID)
+	address := fmt.Sprintf("/settings/states/%v/city", state.ID)
 
 	var countBeforeSave int64
 	db.Model(&entity.City{}).Count(&countBeforeSave)
@@ -44,14 +44,14 @@ func TestCreateCity(t *testing.T) {
 	server := gin.Default()
 	routers.SettingsRouters(server, "settings")
 	_, userToken := createUserAndToken(userRepo, entity.UserRole)
-	req, _ := http.NewRequest("POST", addres, bytes.NewReader(body))
+	req, _ := http.NewRequest("POST", address, bytes.NewReader(body))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusForbidden, w.Code)
 
 	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("POST", addres, bytes.NewReader(body))
+	req, _ = http.NewRequest("POST", address, bytes.NewReader(body))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
@@ -67,7 +67,7 @@ func TestCreateCity(t *testing.T) {
 	assert.Equal(t, city.State.ID, state.ID)
 
 	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("POST", addres, bytes.NewReader(body))
+	req, _ = http.NewRequest("POST", address, bytes.NewReader(body))
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
@@ -89,26 +89,26 @@ func TestListCity(t *testing.T) {
 
 	state, err := createState(db)
 	assert.NoError(t, err)
-	addres := fmt.Sprintf("/settings/states/%v/city", state.ID)
+	address := fmt.Sprintf("/settings/states/%v/city", state.ID)
 
 	server := gin.Default()
 	routers.SettingsRouters(server, "settings")
 	_, userToken := createUserAndToken(userRepo, entity.UserRole)
-	req, _ := http.NewRequest("GET", addres, nil)
+	req, _ := http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("GET", addres, nil)
+	req, _ = http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("GET", addres, nil)
+	req, _ = http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
@@ -130,7 +130,7 @@ func TestRetrieveCity(t *testing.T) {
 
 	state, err := createState(db)
 	assert.NoError(t, err)
-	addres := fmt.Sprintf("/settings/states/%v/city/1", state.ID)
+	address := fmt.Sprintf("/settings/states/%v/city/1", state.ID)
 
 	otherState, err := createState(db)
 	assert.NoError(t, err)
@@ -139,7 +139,7 @@ func TestRetrieveCity(t *testing.T) {
 	server := gin.Default()
 	routers.SettingsRouters(server, "settings")
 	_, userToken := createUserAndToken(userRepo, entity.UserRole)
-	req, _ := http.NewRequest("GET", addres, nil)
+	req, _ := http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
 	w := httptest.NewRecorder()
 	server.ServeHTTP(w, req)
@@ -150,14 +150,14 @@ func TestRetrieveCity(t *testing.T) {
 	cityRepo.Save(context.Background(), &city)
 
 	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("GET", addres, nil)
+	req, _ = http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	_, supportToken := createUserAndToken(userRepo, entity.AdminRole)
-	req, _ = http.NewRequest("GET", addres, nil)
+	req, _ = http.NewRequest("GET", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
@@ -170,6 +170,131 @@ func TestRetrieveCity(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
 	req, _ = http.NewRequest("GET", otherAddress, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestUpdateCity(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+
+	state, err := createState(db)
+	assert.NoError(t, err)
+	address := fmt.Sprintf("/settings/states/%v/city/1", state.ID)
+	otherAddress := fmt.Sprintf("/settings/states/%v/city/3", state.ID)
+
+	cityRepo := repository.NewCityRepository(db)
+	newCity := entity.NewCity("na", state)
+	err = cityRepo.Save(context.Background(), &newCity).Error
+	assert.NoError(t, err)
+
+	body, _ := json.Marshal(map[string]string{"title": "something"})
+
+	server := gin.Default()
+	routers.SettingsRouters(server, "settings")
+
+	_, userToken := createUserAndToken(userRepo, entity.UserRole)
+	req, _ := http.NewRequest("PUT", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", userToken))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	req, _ = http.NewRequest("PUT", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	req, _ = http.NewRequest("PUT", address, bytes.NewBuffer(body))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	updatedCity := new(entity.City)
+	cityRepo.ById(req.Context(), 1, updatedCity)
+	assert.Equal(t, updatedCity.Title, "something")
+
+	req, _ = http.NewRequest("PUT", otherAddress, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	assert.NoError(t, err)
+	_, supportToken := createUserAndToken(userRepo, entity.SupportRole)
+
+	supportBody, _ := json.Marshal(map[string]string{"title": "something"})
+	req, _ = http.NewRequest("PUT", address, bytes.NewBuffer(supportBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	invalidSupportBody, _ := json.Marshal(map[string]string{"titledfdfdf": "something"})
+	req, _ = http.NewRequest("PUT", address, bytes.NewBuffer(invalidSupportBody))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestDeleteCity(t *testing.T) {
+	redis.InitiateTestClient()
+	database.InitiateTestDB()
+
+	db := database.TestDb()
+	userRepo := repository.NewUserRepository(db)
+	user, token := createUserAndToken(userRepo, entity.UserRole)
+	_, adminToken := createUserAndToken(userRepo, entity.AdminRole)
+	_, supportToken := createUserAndToken(userRepo, entity.SupportRole)
+
+	state, err := createState(db)
+	assert.NoError(t, err)
+	address := fmt.Sprintf("/settings/states/%v/city", state.ID)
+
+	cityRepo := repository.NewCityRepository(db)
+	newCity := entity.NewCity("title", state)
+	err = cityRepo.Save(context.Background(), &newCity).Error
+	assert.NoError(t, err)
+
+	userRepo.Save(&user)
+	var count int64
+	db.Model(&entity.City{}).Count(&count)
+
+	server := gin.Default()
+	routers.SettingsRouters(server, "settings")
+
+	req, _ := http.NewRequest("DELETE", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusForbidden, w.Code)
+
+	req, _ = http.NewRequest("DELETE", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNoContent, w.Code)
+
+	var countAfterDelete int64
+	db.Model(&entity.City{}).Count(&countAfterDelete)
+	assert.Equal(t, countAfterDelete, count-1)
+
+	req, _ = http.NewRequest("DELETE", address, nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", adminToken))
+	w = httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	req, _ = http.NewRequest("DELETE", address, nil)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", supportToken))
 	w = httptest.NewRecorder()
 	server.ServeHTTP(w, req)
