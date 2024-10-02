@@ -16,6 +16,20 @@ definitions:
     required:
     - mobile_number
     type: object
+  models.State:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  models.StateResponse:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
   models.Token:
     properties:
       code:
@@ -46,9 +60,221 @@ definitions:
       role:
         type: string
     type: object
+  utils.PaginatedResponse:
+    properties:
+      current_page:
+        type: integer
+      page_count:
+        type: integer
+      result: {}
+    type: object
 info:
   contact: {}
 paths:
+  /settings/states:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves a paginated list of states. You can filter
+        the results by title.
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page-size
+        type: integer
+      - description: Filter by state title
+        in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of states
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/models.StateResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get list of states
+      tags:
+      - states
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new state record in the database.
+      parameters:
+      - description: State data
+        in: body
+        name: state
+        required: true
+        schema:
+          $ref: '#/definitions/models.State'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created state
+          schema:
+            $ref: '#/definitions/models.StateResponse'
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new state
+      tags:
+      - states
+  /settings/states/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: This endpoint deletes a specific state from the database using
+        its ID.
+      parameters:
+      - description: State ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: State deleted successfully
+        "400":
+          description: Invalid state ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: State not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to delete state
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete state by ID
+      tags:
+      - states
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves the details of a specific state by its
+        ID.
+      parameters:
+      - description: State ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: State details
+          schema:
+            $ref: '#/definitions/models.StateResponse'
+        "400":
+          description: Invalid state ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: State not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to retrieve state
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get state by ID
+      tags:
+      - states
+    put:
+      consumes:
+      - application/json
+      description: This endpoint updates the details of a specific state by its ID.
+      parameters:
+      - description: State ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: State data to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.State'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated state
+          schema:
+            $ref: '#/definitions/models.StateResponse'
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: State not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to update state
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update state by ID
+      tags:
+      - states
   /user/authenticate:
     post:
       consumes:
@@ -210,6 +436,15 @@ paths:
       responses:
         "200":
           description: List of users retrieved successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.PaginatedResponse'
+            - properties:
+                result:
+                  items:
+                    $ref: '#/definitions/models.UserResponse'
+                  type: array
+              type: object
         "500":
           description: Internal server error
           schema:

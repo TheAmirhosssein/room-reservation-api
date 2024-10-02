@@ -185,7 +185,7 @@ func DeleteAccount(context *gin.Context) {
 // @Param page-size query int false "Number of users per page" default(10)
 // @Param mobile-number query string false "Filter by mobile number"
 // @Param full-name query string false "Filter by full name"
-// @Success 200 "List of users retrieved successfully"
+// @Success 200 {object} utils.PaginatedResponse{result=[]models.UserResponse} "List of users retrieved successfully"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Router /user/users [get]
 // @Security BearerAuth

@@ -13,6 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateState handles the creation of a new state.
+//
+// @Summary      Create a new state
+// @Description  This endpoint creates a new state record in the database.
+// @Tags         states
+// @Accept       json
+// @Produce      json
+// @Param        state  body      models.State         true  "State data"
+// @Success      201    {object}  models.StateResponse  "Created state"
+// @Failure      400    {object}  map[string]string     "Bad request"
+// @Failure      500    {object}  map[string]string     "Internal server error"
+// @Router       /settings/states [post]
+// @Security BearerAuth
 func CreateState(context *gin.Context) {
 	body := new(models.State)
 	err := context.BindJSON(body)
@@ -34,6 +47,19 @@ func CreateState(context *gin.Context) {
 
 }
 
+// StateList retrieves a list of states with optional filtering and pagination.
+//
+// @Summary      Get list of states
+// @Description  This endpoint retrieves a paginated list of states. You can filter the results by title.
+// @Tags         states
+// @Accept       json
+// @Produce      json
+// @Param        page        query     int    false  "Page number"         default(1)
+// @Param        page-size   query     int    false  "Page size"           default(10)
+// @Param        title       query     string false  "Filter by state title"
+// @Success      200         {object}  utils.PaginatedResponse{result=[]models.StateResponse}  "List of states"
+// @Failure      500         {object}  map[string]string     "Internal server error"
+// @Router       /settings/states [get]
 func StateList(context *gin.Context) {
 	db := database.GetDb()
 	repo := repository.NewStateRepository(db)
@@ -56,6 +82,19 @@ func StateList(context *gin.Context) {
 	context.JSON(http.StatusOK, response)
 }
 
+// RetrieveState retrieves a specific state by its ID.
+//
+// @Summary      Get state by ID
+// @Description  This endpoint retrieves the details of a specific state by its ID.
+// @Tags         states
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int   true   "State ID"
+// @Success      200  {object}  models.StateResponse  "State details"
+// @Failure      400  {object}  map[string]string     "Invalid state ID"
+// @Failure      404  {object}  map[string]string     "State not found"
+// @Failure      500  {object}  map[string]string     "Failed to retrieve state"
+// @Router       /settings/states/{id} [get]
 func RetrieveState(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
@@ -78,6 +117,21 @@ func RetrieveState(context *gin.Context) {
 	context.JSON(http.StatusOK, response)
 }
 
+// UpdateState updates a specific state by its ID.
+//
+// @Summary      Update state by ID
+// @Description  This endpoint updates the details of a specific state by its ID.
+// @Tags         states
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int            true   "State ID"
+// @Param        body  body      models.State   true   "State data to update"
+// @Success      200   {object}  models.StateResponse  "Updated state"
+// @Failure      400   {object}  map[string]string     "Invalid request"
+// @Failure      404   {object}  map[string]string     "State not found"
+// @Failure      500   {object}  map[string]string     "Failed to update state"
+// @Router       /settings/states/{id} [put]
+// @Security BearerAuth
 func UpdateState(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
@@ -111,6 +165,20 @@ func UpdateState(context *gin.Context) {
 	context.JSON(http.StatusOK, response)
 }
 
+// DeleteState deletes a specific state by its ID.
+//
+// @Summary      Delete state by ID
+// @Description  This endpoint deletes a specific state from the database using its ID.
+// @Tags         states
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int   true   "State ID"
+// @Success      204  "State deleted successfully"
+// @Failure      400  {object}  map[string]string  "Invalid state ID"
+// @Failure      404  {object}  map[string]string  "State not found"
+// @Failure      500  {object}  map[string]string  "Failed to delete state"
+// @Router       /settings/states/{id} [delete]
+// @Security BearerAuth
 func DeleteState(context *gin.Context) {
 	id, err := strconv.ParseInt(context.Param("id"), 10, 64)
 	if err != nil {
