@@ -152,3 +152,35 @@ func UpdateCity(context *gin.Context) {
 	response := models.NewCityResponse(city)
 	context.JSON(http.StatusOK, response)
 }
+
+func DeleteCity(context *gin.Context) {
+	stateId, err := strconv.ParseInt(context.Param("id"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	db := database.GetDb()
+	stateRepo := repository.NewStateRepository(db)
+	stateUseCase := usecase.NewStateUseCase(stateRepo)
+	if !stateUseCase.DoesStateExist(context, uint(stateId)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
+		return
+	}
+	cityId, err := strconv.ParseInt(context.Param("cityId"), 10, 64)
+	if err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
+		return
+	}
+	cityRepo := repository.NewCityRepository(db)
+	cityUseCase := usecase.NewCityUseCase(cityRepo)
+	if !cityUseCase.DoesCityExist(context, uint(cityId), uint(stateId)) {
+		context.JSON(http.StatusNotFound, gin.H{"message": "city not found"})
+		return
+	}
+	err = cityUseCase.DeleteById(context, uint(cityId))
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	context.JSON(http.StatusNoContent, nil)
+}

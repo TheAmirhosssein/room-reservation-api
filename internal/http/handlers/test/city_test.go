@@ -258,7 +258,7 @@ func TestDeleteCity(t *testing.T) {
 
 	state, err := createState(db)
 	assert.NoError(t, err)
-	address := fmt.Sprintf("/settings/states/%v/city", state.ID)
+	address := fmt.Sprintf("/settings/states/%v/city/1", state.ID)
 
 	cityRepo := repository.NewCityRepository(db)
 	newCity := entity.NewCity("title", state)
